@@ -1,41 +1,72 @@
 'use client';
 import { useState } from 'react';
-import { CheckCircle2, Circle, Ship, Package, AlertTriangle, MapPin } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { CheckCircle2, Circle, Ship, Package, AlertTriangle, Edit2, Check } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
-// --- ITINERARY ---
-const itinerary = [
-  { day: 'Día 1', title: 'Villa La Angostura', desc: 'Retiro 12:00hs, Compra masiva, Noche en Lago Correntoso.', color: 'border-glacier' },
-  { day: 'Días 2-4', title: 'Lago Falkner', desc: 'Base en Falkner. Actividades: Cerro Falkner, Cascada Ñivinco, Lago Hermoso.', color: 'border-forest' },
-  { day: 'Días 5-7', title: 'SM de los Andes', desc: 'Playa Yuco, Quila Quina, Meliquina + Pozones de Caleufu.', color: 'border-stone' },
-  { day: 'Días 8-9', title: 'Villa Traful', desc: 'Bosque Sumergido y Playa La Puntilla. (Verificar camino).', color: 'border-glacier' },
-  { day: 'Días 10-12', title: 'Bariloche - Río Manso', desc: 'OBLIGATORIO: Camping La Pasarela. Villa Tacul, Playa Sin Viento, Cervecería Patagonia.', color: 'border-forest' },
-  { day: 'Días 13-14', title: 'Bariloche Centro', desc: 'Limpieza y Devolución (08/01 10:00am).', color: 'border-stone' },
+// --- EDITABLE ITINERARY ---
+const initialItinerary = [
+  { id: 1, day: '27/12', title: 'Salida Rosario', desc: 'Salida de Rosario -> Parada y noche en Rufino.', color: 'border-white' },
+  { id: 2, day: '28/12', title: 'Tramo Rufino -> Falkner', desc: 'Tramo Rufino -> Lago Falkner (15 horas de manejo). Llegada y armado de base.', color: 'border-glacier' },
+  { id: 3, day: '29/12 - 01/01', title: 'Base Lago Falkner', desc: 'Estadía fija en Lago Falkner. Actividades: Cerro Falkner, Cascada Ñivinco, Relax.', color: 'border-forest' },
+  { id: 4, day: '02/01 - 04/01', title: 'SM de los Andes', desc: 'Playa Yuco, Quila Quina, Meliquina + Pozones de Caleufu.', color: 'border-stone' },
+  { id: 5, day: '05/01 - 07/01', title: 'Villa Traful & Manso', desc: 'Bosque Sumergido y Río Manso (Camping La Pasarela). Villa Tacul y Cervecería Patagonia.', color: 'border-glacier' },
+  { id: 6, day: '08/01', title: 'Devolución', desc: 'Bariloche Centro, limpieza y entrega 10:00am.', color: 'border-stone' },
 ];
 
-export const Itinerary = () => (
-  <div className="space-y-4">
-    {itinerary.map((item, idx) => (
-      <motion.div 
-        key={idx}
-        initial={{ opacity: 0, x: -20 }}
-        whileInView={{ opacity: 1, x: 0 }}
-        transition={{ delay: idx * 0.1 }}
-        className={`flex gap-4 p-4 bg-gray-900/30 border-l-4 ${item.color} rounded-r-xl`}
-      >
-        <div className="flex-shrink-0 w-20">
-          <p className="text-xs font-bold text-stone uppercase tracking-tighter">{item.day}</p>
-        </div>
-        <div>
-          <h4 className="text-white font-bold text-lg">{item.title}</h4>
-          <p className="text-stone text-sm leading-tight mt-1">{item.desc}</p>
-        </div>
-      </motion.div>
-    ))}
-  </div>
-);
+export const Itinerary = () => {
+  const [items, setItems] = useState(initialItinerary);
+  const [editingId, setEditingId] = useState<number | null>(null);
 
-// --- CHECKLIST ---
+  const handleUpdate = (id: number, field: string, value: string) => {
+    setItems(items.map(item => item.id === id ? { ...item, [field]: value } : item));
+  };
+
+  return (
+    <div className="space-y-4">
+      {items.map((item) => (
+        <motion.div 
+          key={item.id}
+          layout
+          className={`relative group p-4 bg-gray-900/30 border-l-4 ${item.color} rounded-r-xl transition-all`}
+        >
+          <div className="flex justify-between items-start">
+            <div className="flex-1">
+              <span className="text-[10px] font-bold text-stone uppercase tracking-widest">{item.day}</span>
+              {editingId === item.id ? (
+                <div className="mt-2 space-y-2">
+                  <input 
+                    className="w-full bg-black border border-white/10 p-2 rounded text-white font-bold"
+                    value={item.title}
+                    onChange={(e) => handleUpdate(item.id, 'title', e.target.value)}
+                  />
+                  <textarea 
+                    className="w-full bg-black border border-white/10 p-2 rounded text-stone text-sm"
+                    value={item.desc}
+                    onChange={(e) => handleUpdate(item.id, 'desc', e.target.value)}
+                  />
+                </div>
+              ) : (
+                <>
+                  <h4 className="text-white font-bold text-lg leading-tight mt-1">{item.title}</h4>
+                  <p className="text-stone text-sm leading-tight mt-2">{item.desc}</p>
+                </>
+              )}
+            </div>
+            
+            <button 
+              onClick={() => setEditingId(editingId === item.id ? null : item.id)}
+              className="p-2 text-stone hover:text-glacier transition-colors"
+            >
+              {editingId === item.id ? <Check size={18} /> : <Edit2 size={16} className="opacity-0 group-hover:opacity-100" />}
+            </button>
+          </div>
+        </motion.div>
+      ))}
+    </div>
+  );
+};
+
+// --- CHECKLIST (Mantenido) ---
 const gearData = [
   { category: 'Náutica', items: ['4 Packrafts dobles', '3 Paddle Surf', '3 Infladores eléctricos'], icon: <Ship className="text-glacier" size={18} /> },
   { category: 'Logística', items: ['Generador eléctrico', 'Mesa + 15 sillas', 'Gacebo', 'Walkie-Talkies', 'Luces colgantes'], icon: <Package className="text-forest" size={18} /> },
@@ -44,7 +75,6 @@ const gearData = [
 
 export const GearChecklist = () => {
   const [checked, setChecked] = useState<string[]>([]);
-
   const toggle = (item: string) => {
     setChecked(prev => prev.includes(item) ? prev.filter(i => i !== item) : [...prev, item]);
   };

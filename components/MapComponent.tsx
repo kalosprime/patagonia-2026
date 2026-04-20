@@ -3,7 +3,6 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
-// Fix for default marker icons in Leaflet + Next.js
 const customIcon = new L.Icon({
   iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
@@ -22,10 +21,14 @@ const locations = [
 export default function MapComponent() {
   return (
     <div className="h-[400px] w-full rounded-3xl overflow-hidden border border-white/10">
-      <MapContainer center={[-40.6, -71.5]} zoom={8} style={{ height: '100%', width: '100%' }}>
+      <MapContainer 
+        center={[-40.45, -71.55]} // Centrado entre Villa La Angostura y SMAndes
+        zoom={10} // Zoom más cerrado para ver detalles de los lagos
+        style={{ height: '100%', width: '100%' }}
+      >
         <TileLayer
           url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+          attribution='&copy; CARTO'
         />
         {locations.map((loc, idx) => (
           <Marker key={idx} position={loc.pos as [number, number]} icon={customIcon}>
