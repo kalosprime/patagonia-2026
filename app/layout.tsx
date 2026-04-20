@@ -5,7 +5,7 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Patagonia 2026 | Command Center",
+  title: "Viaje al Sur con la Banda | Command Center",
   description: "Centro de comando para el viaje de los pibes al sur",
 };
 

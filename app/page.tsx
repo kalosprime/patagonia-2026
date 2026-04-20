@@ -20,7 +20,7 @@ export default function PatagoniaDashboard() {
         {/* HERO SECTION */}
         <section className="text-center space-y-4">
           <h1 className="text-4xl md:text-6xl font-black tracking-tighter text-slate-800">
-            PATAGONIA <span className="text-glacier">2026</span>
+            VIAJE AL SUR <span className="text-glacier">CON LA BANDA</span>
           </h1>
           <p className="text-slate-400 font-bold uppercase tracking-[0.2em] text-[10px]">Command Center • 15 Amigos • 3 Motorhomes</p>
           <Countdown />
