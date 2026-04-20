@@ -3,6 +3,22 @@ import { useState, useEffect } from 'react';
 import { ExternalLink, DollarSign, Wallet, ChevronDown, ChevronUp, Info } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
+// --- TYPES ---
+interface FinancialItem {
+  name: string;
+  total: string;
+  pp?: string; // Optional property for "per person" cost
+}
+
+interface FinancialSection {
+  id: string;
+  type: 'usd' | 'ars';
+  label: string;
+  total: string;
+  perPerson: string;
+  items: FinancialItem[];
+}
+
 // --- COUNTDOWN ---
 export const Countdown = () => {
   const [timeLeft, setTimeLeft] = useState({ días: 0, horas: 0, min: 0, seg: 0 });
@@ -36,7 +52,7 @@ export const Countdown = () => {
 export const Financials = () => {
   const [expanded, setExpanded] = useState<string | null>(null);
 
-  const sections = [
+  const sections: FinancialSection[] = [
     {
       id: 'alquiler',
       type: 'usd',
