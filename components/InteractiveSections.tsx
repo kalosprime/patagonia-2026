@@ -3,10 +3,34 @@ import { useState, useEffect } from 'react';
 import { CheckCircle2, Circle, Ship, Package, AlertTriangle, Edit2, Check, Plus, Trash2, User, X, Info, Droplets, MapPin, Star, Zap, Mountain, Beer, Tent, ExternalLink } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
+// --- TYPES ---
+interface ItineraryItem {
+  id: number | string;
+  day: string;
+  title: string;
+  desc: string;
+  color: string;
+  link?: string;
+}
+
+interface NoteItem {
+  id: number;
+  author: string;
+  text: string;
+  date: string;
+}
+
+interface GearCategory {
+  id: number;
+  name: string;
+  items: string[];
+  icon: React.ReactNode;
+}
+
 // --- COMPONENTE DE CARGA SEGURO ---
 const Skeleton = ({ h = "h-40" }) => <div className={`${h} w-full bg-slate-100 animate-pulse rounded-[2rem] border border-slate-50`} />;
 
-// --- THE IMPERDIBLES (ESTÁTICO - SEGURO) ---
+// --- THE IMPERDIBLES ---
 export const Highlights = () => {
   const data = [
     { title: 'Hito Año Nuevo', desc: 'Festejo en Lago Falkner.', icon: <Star size={16} />, color: 'bg-yellow-50', link: 'https://www.google.com/maps/search/Lago+Falkner+Neuquen/' },
@@ -34,13 +58,13 @@ export const Highlights = () => {
 
 // --- ITINERARY ---
 export const Itinerary = () => {
-  const initial = [
+  const initial: ItineraryItem[] = [
     { id: 1, day: '27/12', title: 'Salida Rosario', desc: 'Parada y noche en Rufino.', color: 'border-blue-500', link: 'https://www.google.com/maps/search/Rufino+Santa+Fe/' },
     { id: 2, day: '28/12', title: 'Tramo Rufino -> Falkner', desc: 'Llegada al Falkner.', color: 'border-cyan-400', link: 'https://www.google.com/maps/search/Lago+Falkner+Neuquen/' },
     { id: 3, day: '29/12 - 01/01', title: 'Festejos Año Nuevo', desc: 'Base en Camping Falkner.', color: 'border-emerald-500', link: 'https://www.google.com/maps/search/Lago+Falkner+Neuquen/' },
   ];
 
-  const [items, setItems] = useState<any[]>([]);
+  const [items, setItems] = useState<ItineraryItem[]>([]);
   const [hasMounted, setHasMounted] = useState(false);
   const [editingId, setEditingId] = useState<number | string | null>(null);
 
@@ -60,7 +84,7 @@ export const Itinerary = () => {
 
   if (!hasMounted) return <Skeleton h="h-60" />;
 
-  const handleUpdate = (id: number | string, field: string, value: string) => setItems(items.map(i => i.id === id ? { ...i, [field]: value } : i));
+  const handleUpdate = (id: number | string, field: keyof ItineraryItem, value: string) => setItems(items.map(i => i.id === id ? { ...i, [field]: value } : i));
   const addItem = () => { const id = Date.now(); setItems([...items, { id, day: 'Fecha', title: 'Nueva Etapa', desc: '...', color: 'border-slate-200', link: '' }]); setEditingId(id); };
   const removeItem = (id: number | string) => setItems(items.filter(i => i.id !== id));
 
@@ -91,14 +115,14 @@ export const Itinerary = () => {
           </div>
         </div>
       ))}
-      <button onClick={addItem} className="w-full py-4 border-2 border-dashed border-slate-200 rounded-3xl text-slate-400 font-bold text-xs hover:border-glacier hover:text-glacier transition-all flex items-center justify-center gap-2"><Plus size={16} /> Agregar Etapa</button>
+      <button onClick={addItem} className="w-full py-4 border-2 border-dashed border-slate-200 rounded-3xl text-slate-400 font-bold text-xs hover:border-glacier hover:text-glacier flex items-center justify-center gap-2"><Plus size={16} /> Agregar Etapa</button>
     </div>
   );
 };
 
 // --- CREW NOTES ---
 export const CrewNotes = () => {
-  const [notes, setNotes] = useState<any[]>([]);
+  const [notes, setNotes] = useState<NoteItem[]>([]);
   const [hasMounted, setHasMounted] = useState(false);
   const [newNote, setNewNote] = useState({ author: '', text: '' });
 
@@ -117,7 +141,7 @@ export const CrewNotes = () => {
   if (!hasMounted) return <Skeleton h="h-32" />;
 
   const addNote = () => { if (newNote.author && newNote.text) { setNotes([{ id: Date.now(), ...newNote, date: new Date().toLocaleDateString() }, ...notes]); setNewNote({ author: '', text: '' }); } };
-  const deleteNote = (id: number) => setNotes(notes.filter(n => n.id !== id));
+  const deleteNote = (id: number) => setNotes(notes.filter((n: NoteItem) => n.id !== id));
 
   return (
     <div className="space-y-4">
@@ -131,7 +155,7 @@ export const CrewNotes = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {notes.map((note) => (
           <div key={note.id} className="bg-white p-5 rounded-[2rem] border border-slate-100 shadow-sm relative group">
-            <button onClick={() => deleteNote(note.id)} className="absolute top-4 right-4 text-slate-200 hover:text-red-400 opacity-0 group-hover:opacity-100"><X size={16} /></button>
+            <button onClick={() => deleteNote(note.id)} className="absolute top-4 right-4 text-slate-200 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all"><X size={16} /></button>
             <p className="text-[10px] font-black text-slate-800 uppercase mb-1">{note.author} <span className="text-slate-300 font-bold ml-1">{note.date}</span></p>
             <p className="text-slate-500 text-xs leading-relaxed">{note.text}</p>
           </div>
@@ -143,12 +167,12 @@ export const CrewNotes = () => {
 
 // --- GEAR CHECKLIST ---
 export const GearChecklist = () => {
-  const initial = [
+  const initial: GearCategory[] = [
     { id: 1, name: 'Náutica', items: ['4 Packrafts dobles', '3 Paddle Surf', '3 Infladores'], icon: <Ship className="text-blue-400" /> },
     { id: 2, name: 'Logística', items: ['Generador', '15 Sillas', 'Gacebo', 'Walkies'], icon: <Package className="text-emerald-500" /> },
     { id: 3, name: 'Crucial', items: ['Parlante Grande', 'Alcohol', 'Hielo'], icon: <AlertTriangle className="text-orange-500" /> }
   ];
-  const [categories, setCategories] = useState<any[]>([]);
+  const [categories, setCategories] = useState<GearCategory[]>([]);
   const [checked, setChecked] = useState<string[]>([]);
   const [hasMounted, setHasMounted] = useState(false);
   const [newItemText, setNewItemText] = useState<{ [key: number]: string }>({});
@@ -175,17 +199,17 @@ export const GearChecklist = () => {
 
   if (!hasMounted) return <Skeleton h="h-60" />;
 
-  const toggleItem = (item: string) => setChecked(checked.includes(item) ? checked.filter(i => i !== item) : [...checked, item]);
-  const addItem = (catId: number) => { const text = newItemText[catId]; if (!text) return; setCategories(categories.map(cat => cat.id === catId ? { ...cat, items: [...cat.items, text] } : cat)); setNewItemText({ ...newItemText, [catId]: '' }); };
-  const removeItem = (catId: number, itemToRemove: string) => { setCategories(categories.map(cat => cat.id === catId ? { ...cat, items: cat.items.filter(i => i !== itemToRemove) } : cat)); setChecked(checked.filter(i => i !== itemToRemove)); };
+  const toggleItem = (item: string) => setChecked(checked.includes(item) ? checked.filter((i: string) => i !== item) : [...checked, item]);
+  const addItem = (catId: number) => { const text = newItemText[catId]; if (!text) return; setCategories(categories.map((cat: GearCategory) => cat.id === catId ? { ...cat, items: [...cat.items, text] } : cat)); setNewItemText({ ...newItemText, [catId]: '' }); };
+  const removeItem = (catId: number, itemToRemove: string) => { setCategories(categories.map((cat: GearCategory) => cat.id === catId ? { ...cat, items: cat.items.filter((i: string) => i !== itemToRemove) } : cat)); setChecked(checked.filter((i: string) => i !== itemToRemove)); };
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-slate-900">
-      {categories.map((cat: any) => (
+      {categories.map((cat: GearCategory) => (
         <div key={cat.id} className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm flex flex-col h-full">
           <div className="flex items-center gap-2 mb-6">{cat.icon}<h3 className="text-slate-800 font-black uppercase text-[10px] tracking-widest">{cat.name}</h3></div>
           <div className="space-y-2 flex-1 mb-6">
-            {cat.items.map((item: string, idx: number) => (
+            {cat.items.map((item, idx) => (
               <div key={item + idx} className="flex items-center justify-between group">
                 <button onClick={() => toggleItem(item)} className="flex items-center gap-3 flex-1 text-left">
                   {checked.includes(item) ? <CheckCircle2 size={16} className="text-emerald-500" /> : <Circle size={16} className="text-slate-200" />}
