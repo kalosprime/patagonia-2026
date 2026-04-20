@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { MapPin, Users, DollarSign, Calendar, Info, ExternalLink, CheckSquare, Square } from 'lucide-react';
+import { ExternalLink } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 // --- COUNTDOWN ---
@@ -23,11 +23,11 @@ export const Countdown = () => {
   }, []);
 
   return (
-    <div className="flex justify-center space-x-4 py-8">
+    <div className="flex justify-center space-x-3 py-6">
       {Object.entries(timeLeft).map(([label, value]) => (
-        <div key={label} className="flex flex-col items-center bg-gray-900 border border-glacier/30 rounded-xl p-4 w-20 shadow-lg shadow-glacier/5">
-          <span className="text-2xl font-bold text-glacier">{value < 0 ? 0 : value}</span>
-          <span className="text-[10px] uppercase text-stone tracking-widest">{label}</span>
+        <div key={label} className="flex flex-col items-center bg-white border border-slate-200 rounded-2xl p-4 w-20 shadow-sm">
+          <span className="text-2xl font-black text-slate-800">{value < 0 ? 0 : value}</span>
+          <span className="text-[9px] uppercase text-slate-400 font-bold tracking-widest">{label}</span>
         </div>
       ))}
     </div>
@@ -38,22 +38,22 @@ export const Countdown = () => {
 export const Financials = () => {
   const data = [
     { label: 'Alquiler Total', value: 'USD 7.340', sub: 'USD 489,33 p/p' },
-    { label: 'Garantía', value: 'USD 4.500', sub: 'USD 300 p/p (Recuperables)' },
-    { label: 'Limpieza', value: 'USD 90', sub: 'Incluido en total' },
+    { label: 'Garantía', value: 'USD 4.500', sub: 'USD 300 p/p (Reembolsable)' },
+    { label: 'Limpieza', value: 'USD 90', sub: 'Ya incluido' },
   ];
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       {data.map((item, idx) => (
         <motion.div 
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 10 }}
           whileInView={{ opacity: 1, y: 0 }}
           key={idx} 
-          className="bg-gray-900/50 border border-white/10 p-5 rounded-2xl"
+          className="bg-white border border-slate-100 p-6 rounded-3xl shadow-sm"
         >
-          <p className="text-stone text-sm mb-1">{item.label}</p>
-          <p className="text-2xl font-bold text-white mb-1">{item.value}</p>
-          <p className="text-forest text-xs font-semibold">{item.sub}</p>
+          <p className="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">{item.label}</p>
+          <p className="text-2xl font-black text-slate-800 mb-1">{item.value}</p>
+          <p className="text-forest text-xs font-bold">{item.sub}</p>
         </motion.div>
       ))}
     </div>
@@ -69,17 +69,20 @@ export const VehicleFleet = () => {
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
       {vehicles.map((v, i) => (
-        <div key={i} className="group relative overflow-hidden bg-gray-900 border border-white/5 rounded-3xl p-6 transition-all hover:border-glacier/50">
-          <div className="flex justify-between items-start mb-4">
-            <h3 className="text-xl font-bold text-white">{v.name}</h3>
-            <span className="bg-forest/20 text-forest px-3 py-1 rounded-full text-xs font-bold">{v.pax}</span>
+        <div key={i} className="bg-white border border-slate-100 rounded-[2rem] p-8 shadow-sm hover:shadow-md transition-shadow">
+          <div className="flex justify-between items-start mb-6">
+            <h3 className="text-xl font-black text-slate-800 tracking-tight">{v.name}</h3>
+            <span className="bg-glacier/10 text-glacier px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">{v.pax}</span>
           </div>
-          <p className="text-stone mb-6">Precio: <span className="text-white font-mono">{v.price}</span></p>
+          <div className="mb-8">
+            <p className="text-slate-400 text-xs font-bold uppercase mb-1">Precio Total</p>
+            <p className="text-2xl font-black text-slate-800">{v.price}</p>
+          </div>
           {v.link !== '#' && (
-            <a href={v.link} target="_blank" rel="noopener" className="flex items-center justify-center gap-2 w-full bg-white text-black py-3 rounded-xl font-bold hover:bg-glacier transition-colors">
-              Ver en Instagram <ExternalLink size={16} />
+            <a href={v.link} target="_blank" rel="noopener" className="flex items-center justify-center gap-2 w-full bg-slate-900 text-white py-4 rounded-2xl font-bold text-sm hover:bg-slate-800 transition-colors">
+              Ver Galería <ExternalLink size={14} />
             </a>
           )}
         </div>

@@ -20,20 +20,20 @@ const locations = [
 
 export default function MapComponent() {
   return (
-    <div className="h-[400px] w-full rounded-3xl overflow-hidden border border-white/10">
+    <div className="h-[400px] w-full rounded-3xl overflow-hidden border border-gray-300 shadow-xl">
       <MapContainer 
-        center={[-40.45, -71.55]} // Centrado entre Villa La Angostura y SMAndes
-        zoom={10} // Zoom más cerrado para ver detalles de los lagos
+        center={[-40.45, -71.55]} 
+        zoom={10} 
         style={{ height: '100%', width: '100%' }}
       >
         <TileLayer
-          url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-          attribution='&copy; CARTO'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         />
         {locations.map((loc, idx) => (
           <Marker key={idx} position={loc.pos as [number, number]} icon={customIcon}>
             <Popup>
-              <span className="font-bold">{loc.name}</span>
+              <span className="font-bold text-gray-800">{loc.name}</span>
             </Popup>
           </Marker>
         ))}
