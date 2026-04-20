@@ -1,13 +1,13 @@
 'use client';
 import dynamic from 'next/dynamic';
 import { Countdown, Financials, VehicleFleet } from '@/components/CoreComponents';
-import { Itinerary, GearChecklist, CrewNotes, DiscardedPlaces, LakeList } from '@/components/InteractiveSections';
-import { Users, Map as MapIcon, Calendar, DollarSign, Wrench, MessageSquare, History, Droplets } from 'lucide-react';
+import { Itinerary, GearChecklist, CrewNotes, DiscardedPlaces, LakeList, Highlights } from '@/components/InteractiveSections';
+import { Users, Map as MapIcon, Calendar, DollarSign, Wrench, MessageSquare, History, Droplets, Star } from 'lucide-react';
 
 // Dynamic import for Leaflet (No SSR)
 const MapComponent = dynamic(() => import('@/components/MapComponent'), { 
   ssr: false,
-  loading: () => <div className="h-[400px] w-full bg-gray-100 animate-pulse rounded-3xl" />
+  loading: () => <div className="h-[400px] w-full bg-slate-100 animate-pulse rounded-3xl" />
 });
 
 const crew = ["Fela", "Juan", "Cardo", "Pato", "Pipo", "Justo", "Santi", "Bumbun", "Tato", "Goyo", "Joaco", "Luki", "Fede", "Jose", "Suaya"];
@@ -26,21 +26,6 @@ export default function PatagoniaDashboard() {
           <Countdown />
         </section>
 
-        {/* CREW SECTION */}
-        <section>
-          <div className="flex items-center gap-2 mb-6">
-            <Users className="text-glacier" size={20} />
-            <h2 className="text-lg font-black uppercase text-slate-700 tracking-wider">La Tripulación</h2>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {crew.map(name => (
-              <span key={name} className="px-4 py-2 bg-white border border-slate-200 shadow-sm rounded-full text-xs font-bold text-slate-600 hover:border-glacier transition-colors">
-                {name}
-              </span>
-            ))}
-          </div>
-        </section>
-
         {/* FINANCIALS SECTION */}
         <section>
           <div className="flex items-center gap-2 mb-6">
@@ -49,6 +34,15 @@ export default function PatagoniaDashboard() {
           </div>
           <Financials />
           <VehicleFleet />
+        </section>
+
+        {/* HIGHLIGHTS SECTION */}
+        <section>
+          <div className="flex items-center gap-2 mb-6">
+            <Star className="text-glacier" size={20} />
+            <h2 className="text-lg font-black uppercase text-slate-700 tracking-wider">Los Imperdibles</h2>
+          </div>
+          <Highlights />
         </section>
 
         {/* LAKES SECTION */}
@@ -60,15 +54,6 @@ export default function PatagoniaDashboard() {
           <LakeList />
         </section>
 
-        {/* MAP SECTION */}
-        <section>
-          <div className="flex items-center gap-2 mb-6">
-            <MapIcon className="text-glacier" size={20} />
-            <h2 className="text-lg font-black uppercase text-slate-700 tracking-wider">Ruta de los 7 Lagos</h2>
-          </div>
-          <MapComponent />
-        </section>
-
         {/* ITINERARY SECTION */}
         <section>
           <div className="flex items-center gap-2 mb-6">
@@ -78,11 +63,35 @@ export default function PatagoniaDashboard() {
           <Itinerary />
         </section>
 
+        {/* MAP SECTION */}
+        <section>
+          <div className="flex items-center gap-2 mb-6">
+            <MapIcon className="text-glacier" size={20} />
+            <h2 className="text-lg font-black uppercase text-slate-700 tracking-wider">Ruta de los 7 Lagos</h2>
+          </div>
+          <MapComponent />
+        </section>
+
+        {/* CREW SECTION */}
+        <section>
+          <div className="flex items-center gap-2 mb-6">
+            <Users className="text-glacier" size={20} />
+            <h2 className="text-lg font-black uppercase text-slate-700 tracking-wider">La Tripulación</h2>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {crew.map(name => (
+              <span key={name} className="px-4 py-2 bg-white border border-slate-200 shadow-sm rounded-full text-xs font-bold text-slate-600">
+                {name}
+              </span>
+            ))}
+          </div>
+        </section>
+
         {/* DISCARDED SECTION */}
         <section>
           <div className="flex items-center gap-2 mb-6">
             <History className="text-glacier" size={20} />
-            <h2 className="text-lg font-black uppercase text-slate-700 tracking-wider">Lugares que dejamos afuera</h2>
+            <h2 className="text-lg font-black uppercase text-slate-700 tracking-wider">Lugares Descartados</h2>
           </div>
           <DiscardedPlaces />
         </section>
@@ -106,7 +115,7 @@ export default function PatagoniaDashboard() {
         </section>
 
         <footer className="text-center pt-10 border-t border-slate-200">
-          <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.3em]">© 2026 Patagonia Trip • Basecamp</p>
+          <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.3em]">© 2026 Patagonia Trip • Command Center</p>
         </footer>
       </div>
     </main>
