@@ -3,10 +3,10 @@ import { useState, useEffect } from 'react';
 import { CheckCircle2, Circle, Ship, Package, AlertTriangle, Edit2, Check, Plus, Trash2, User, X, Info, Droplets, MapPin, ArrowRight, Star, Zap, Mountain, Beer, Tent, Camera, ExternalLink } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-// --- CUSTOM HOOK PARA PERSISTENCIA SEGURA ---
-function usePersistedState<T>(key: string, initialValue: T): [T, (value: T) => void, boolean] {
+// --- CUSTOM HOOK SEGURO PARA PERSISTENCIA ---
+function useSafePersistedState<T>(key: string, initialValue: T): [T, (value: T) => void, boolean] {
   const [state, setState] = useState<T>(initialValue);
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     try {
@@ -14,23 +14,23 @@ function usePersistedState<T>(key: string, initialValue: T): [T, (value: T) => v
       if (saved) {
         setState(JSON.parse(saved));
       }
-    } catch (error) {
-      console.error("Error loading from localStorage", error);
+    } catch (e) {
+      console.error("Error al cargar localStorage", e);
     }
-    setIsLoaded(true);
+    setMounted(true);
   }, [key]);
 
   useEffect(() => {
-    if (isLoaded) {
+    if (mounted) {
       try {
         window.localStorage.setItem(key, JSON.stringify(state));
-      } catch (error) {
-        console.error("Error saving to localStorage", error);
+      } catch (e) {
+        console.error("Error al guardar en localStorage", e);
       }
     }
-  }, [key, state, isLoaded]);
+  }, [key, state, mounted]);
 
-  return [state, setState, isLoaded];
+  return [state, setState, mounted];
 }
 
 // --- CARD LINK COMPONENT ---
@@ -84,10 +84,10 @@ export const Itinerary = () => {
     { id: 5, day: '05/01 - 07/01', title: 'Bariloche & Manso', desc: 'Río Manso, Puente Ruca Malen y Refugio Patagonia.', color: 'border-cyan-500', link: 'https://www.google.com/maps/search/Camping+La+Pasarela+Rio+Manso/' },
   ];
 
-  const [items, setItems, isLoaded] = usePersistedState('v2_itinerary', initial);
+  const [items, setItems, mounted] = useSafePersistedState('v3_itinerary', initial);
   const [editingId, setEditingId] = useState<number | string | null>(null);
 
-  if (!isLoaded) return <div className="h-40 w-full bg-slate-100 animate-pulse rounded-3xl" />;
+  if (!mounted) return <div className="h-60 w-full bg-slate-100 animate-pulse rounded-[2rem]" />;
 
   const handleUpdate = (id: number | string, field: string, value: string) => setItems(items.map((item: any) => item.id === id ? { ...item, [field]: value } : item));
   const addItem = () => { const id = Date.now(); setItems([...items, { id, day: 'Fecha', title: 'Nueva Etapa', desc: '...', color: 'border-gray-200', link: '' }]); setEditingId(id); };
@@ -95,11 +95,11 @@ export const Itinerary = () => {
 
   return (
     <div className="space-y-4">
-      <AnimatePresence>
+      <AnimatePresence mode="popLayout">
         {items.map((item: any) => (
-          <motion.div key={item.id} layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} className={`relative p-6 bg-white border-l-4 ${item.color} rounded-r-[2rem] shadow-sm border-y border-r border-gray-100`}>
+          <motion.div key={item.id} layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, scale: 0.95 }} className={`relative p-6 bg-white border-l-4 ${item.color} rounded-r-[2rem] shadow-sm border-y border-r border-gray-100`}>
             <div className="flex justify-between items-start gap-4">
-              <div className="flex-1">
+              <div className="flex-1 text-slate-900">
                 <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{item.day}</span>
                 {editingId === item.id ? (
                   <div className="mt-2 space-y-2">
@@ -112,7 +112,7 @@ export const Itinerary = () => {
                     <p className="text-slate-500 text-xs mt-2 leading-relaxed">{item.desc}</p>
                     {item.link && (
                       <a href={item.link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 mt-4 text-[10px] font-black text-glacier uppercase hover:text-blue-600 transition-colors">
-                        Ver en Mapa <MapPin size={10} />
+                        Mapa <MapPin size={10} />
                       </a>
                     )}
                   </>
@@ -133,31 +133,33 @@ export const Itinerary = () => {
 
 // --- CREW NOTES ---
 export const CrewNotes = () => {
-  const [notes, setNotes, isLoaded] = usePersistedState<any[]>('v2_notes', []);
+  const [notes, setNotes, mounted] = useSafePersistedState<any[]>('v3_notes', []);
   const [newNote, setNewNote] = useState({ author: '', text: '' });
   
   const addNote = () => { if (newNote.author && newNote.text) { setNotes([{ id: Date.now(), ...newNote, date: new Date().toLocaleDateString() }, ...notes]); setNewNote({ author: '', text: '' }); } };
   const deleteNote = (id: number) => setNotes(notes.filter((n: any) => n.id !== id));
   
-  if (!isLoaded) return <div className="h-32 w-full bg-slate-100 animate-pulse rounded-3xl" />;
+  if (!mounted) return <div className="h-32 w-full bg-slate-100 animate-pulse rounded-[2rem]" />;
 
   return (
     <div className="space-y-4">
       <div className="bg-white p-5 rounded-[2rem] border border-slate-100 shadow-sm space-y-3">
         <div className="grid grid-cols-2 gap-3">
-          <input placeholder="Tu Nombre" className="bg-slate-50 border border-slate-200 p-3 rounded-xl text-xs outline-none focus:border-glacier font-bold" value={newNote.author} onChange={e => setNewNote({...newNote, author: e.target.value})} />
-          <button onClick={addNote} className="bg-slate-900 text-white px-4 py-2 rounded-xl font-bold text-xs hover:bg-slate-800 transition-all">Publicar</button>
+          <input placeholder="Tu Nombre" className="bg-slate-50 border border-slate-200 p-3 rounded-xl text-xs outline-none focus:border-glacier font-bold text-slate-800" value={newNote.author} onChange={e => setNewNote({...newNote, author: e.target.value})} />
+          <button onClick={addNote} className="bg-slate-900 text-white px-4 py-2 rounded-xl font-bold text-xs hover:bg-slate-800 transition-all shadow-sm">Publicar</button>
         </div>
-        <textarea placeholder="Deja un mensaje..." className="w-full bg-slate-50 border border-slate-200 p-4 rounded-2xl text-xs outline-none focus:border-glacier h-24" value={newNote.text} onChange={e => setNewNote({...newNote, text: e.target.value})} />
+        <textarea placeholder="Deja un mensaje..." className="w-full bg-slate-50 border border-slate-200 p-4 rounded-2xl text-xs outline-none focus:border-glacier h-24 text-slate-800" value={newNote.text} onChange={e => setNewNote({...newNote, text: e.target.value})} />
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        {notes.map(note => (
-          <div key={note.id} className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm relative group">
-            <button onClick={() => deleteNote(note.id)} className="absolute top-3 right-3 text-slate-200 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all"><X size={14} /></button>
-            <p className="text-[10px] font-black text-slate-800 uppercase mb-1">{note.author} <span className="text-slate-300 font-medium ml-1">{note.date}</span></p>
-            <p className="text-slate-500 text-xs leading-tight">{note.text}</p>
-          </div>
-        ))}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <AnimatePresence mode="popLayout">
+          {notes.map((note: any) => (
+            <motion.div key={note.id} layout initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="bg-white p-5 rounded-[2rem] border border-slate-100 shadow-sm relative group">
+              <button onClick={() => deleteNote(note.id)} className="absolute top-4 right-4 text-slate-200 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all"><X size={16} /></button>
+              <p className="text-[10px] font-black text-slate-800 uppercase tracking-tighter mb-1">{note.author} <span className="text-slate-300 font-bold ml-1">{note.date}</span></p>
+              <p className="text-slate-500 text-xs leading-relaxed">{note.text}</p>
+            </motion.div>
+          ))}
+        </AnimatePresence>
       </div>
     </div>
   );
@@ -171,31 +173,33 @@ export const GearChecklist = () => {
     { id: 3, name: 'Crucial', items: ['Parlante Grande', 'Alcohol', 'Hielo'], icon: <AlertTriangle className="text-orange-500" /> }
   ];
   
-  const [categories, setCategories, isLoadedCat] = usePersistedState<any[]>('v2_gear', initial);
-  const [checked, setChecked, isLoadedCheck] = usePersistedState<string[]>('v2_checked', []);
+  const [categories, setCategories, mountedCat] = useSafePersistedState<any[]>('v3_gear', initial);
+  const [checked, setChecked, mountedCheck] = useSafePersistedState<string[]>('v3_checked', []);
   const [newItemText, setNewItemText] = useState<{ [key: number]: string }>({});
 
-  if (!isLoadedCat || !isLoadedCheck) return <div className="h-60 w-full bg-slate-100 animate-pulse rounded-3xl" />;
+  if (!mountedCat || !mountedCheck) return <div className="h-60 w-full bg-slate-100 animate-pulse rounded-[2rem]" />;
 
   const toggleItem = (item: string) => setChecked(checked.includes(item) ? checked.filter((i: string) => i !== item) : [...checked, item]);
   const addItem = (catId: number) => { const text = newItemText[catId]; if (!text) return; setCategories(categories.map((cat: any) => cat.id === catId ? { ...cat, items: [...cat.items, text] } : cat)); setNewItemText({ ...newItemText, [catId]: '' }); };
   const removeItem = (catId: number, itemToRemove: string) => { setCategories(categories.map((cat: any) => cat.id === catId ? { ...cat, items: cat.items.filter((i: string) => i !== itemToRemove) } : cat)); setChecked(checked.filter((i: string) => i !== itemToRemove)); };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-slate-900">
       {categories.map((cat: any) => (
         <div key={cat.id} className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm flex flex-col h-full">
-          <div className="flex items-center gap-2 mb-4">{cat.icon}<h3 className="text-slate-800 font-black uppercase text-[10px] tracking-widest">{cat.name}</h3></div>
+          <div className="flex items-center gap-2 mb-6">{cat.icon}<h3 className="text-slate-800 font-black uppercase text-[10px] tracking-widest">{cat.name}</h3></div>
           <div className="space-y-2 flex-1 mb-6">
-            {cat.items.map((item: string, idx: number) => (
-              <div key={item + idx} className="flex items-center justify-between group">
-                <button onClick={() => toggleItem(item)} className="flex items-center gap-3 flex-1 text-left">
-                  {checked.includes(item) ? <CheckCircle2 size={16} className="text-emerald-500" /> : <Circle size={16} className="text-slate-200" />}
-                  <span className={`text-xs font-medium ${checked.includes(item) ? 'text-slate-300 line-through' : 'text-slate-600'}`}>{item}</span>
-                </button>
-                <button onClick={() => removeItem(cat.id, item)} className="text-slate-200 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all"><X size={12} /></button>
-              </div>
-            ))}
+            <AnimatePresence mode="popLayout">
+              {cat.items.map((item: string, idx: number) => (
+                <motion.div key={item + idx} layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center justify-between group">
+                  <button onClick={() => toggleItem(item)} className="flex items-center gap-3 flex-1 text-left">
+                    {checked.includes(item) ? <CheckCircle2 size={16} className="text-emerald-500" /> : <Circle size={16} className="text-slate-200" />}
+                    <span className={`text-xs font-medium ${checked.includes(item) ? 'text-slate-300 line-through' : 'text-slate-600'}`}>{item}</span>
+                  </button>
+                  <button onClick={() => removeItem(cat.id, item)} className="text-slate-200 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all"><X size={12} /></button>
+                </motion.div>
+              ))}
+            </AnimatePresence>
           </div>
           <div className="flex gap-2">
             <input type="text" placeholder="..." className="flex-1 bg-slate-50 border border-slate-100 p-2 rounded-xl text-[10px] outline-none text-slate-700 font-bold" value={newItemText[cat.id] || ''} onChange={(e) => setNewItemText({ ...newItemText, [cat.id]: e.target.value })} onKeyDown={(e) => e.key === 'Enter' && addItem(cat.id)} />
