@@ -3,23 +3,35 @@ import { useState, useEffect } from 'react';
 import { CheckCircle2, Circle, Ship, Package, AlertTriangle, Edit2, Check, Plus, Trash2, User, X, Info, Droplets, MapPin, ArrowRight, Star, Zap, Mountain, Beer, Tent, Camera, ExternalLink } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-// --- HELPER PARA PERSISTENCIA ---
-const usePersistedState = (key: string, initialValue: any) => {
-  const [state, setState] = useState(initialValue);
+// --- CUSTOM HOOK PARA PERSISTENCIA SEGURA ---
+function usePersistedState<T>(key: string, initialValue: T): [T, (value: T) => void, boolean] {
+  const [state, setState] = useState<T>(initialValue);
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    const saved = localStorage.getItem(key);
-    if (saved) setState(JSON.parse(saved));
+    try {
+      const saved = window.localStorage.getItem(key);
+      if (saved) {
+        setState(JSON.parse(saved));
+      }
+    } catch (error) {
+      console.error("Error loading from localStorage", error);
+    }
     setIsLoaded(true);
   }, [key]);
 
   useEffect(() => {
-    if (isLoaded) localStorage.setItem(key, JSON.stringify(state));
+    if (isLoaded) {
+      try {
+        window.localStorage.setItem(key, JSON.stringify(state));
+      } catch (error) {
+        console.error("Error saving to localStorage", error);
+      }
+    }
   }, [key, state, isLoaded]);
 
-  return [state, setState];
-};
+  return [state, setState, isLoaded];
+}
 
 // --- CARD LINK COMPONENT ---
 const PhotoCard = ({ href, title, desc, icon, color }: { href: string, title: string, desc: string, icon: any, color: string }) => (
@@ -62,9 +74,9 @@ export const Highlights = () => {
   );
 };
 
-// --- DYNAMIC ITINERARY WITH PERSISTENCE ---
+// --- DYNAMIC ITINERARY ---
 export const Itinerary = () => {
-  const initialItinerary = [
+  const initial = [
     { id: 1, day: '27/12', title: 'Salida Rosario', desc: 'Parada y noche en Rufino.', color: 'border-blue-500', link: 'https://www.google.com/maps/search/Rufino+Santa+Fe/' },
     { id: 2, day: '28/12', title: 'Tramo Rufino -> Falkner', desc: '15 horas de manejo. Llegada al Falkner.', color: 'border-cyan-400', link: 'https://www.google.com/maps/search/Lago+Falkner+Neuquen/' },
     { id: 3, day: '29/12 - 01/01', title: 'Festejos Año Nuevo', desc: '4 Noches de base en Camping Falkner.', color: 'border-emerald-500', link: 'https://www.google.com/maps/search/Lago+Falkner+Neuquen/' },
@@ -72,8 +84,10 @@ export const Itinerary = () => {
     { id: 5, day: '05/01 - 07/01', title: 'Bariloche & Manso', desc: 'Río Manso, Puente Ruca Malen y Refugio Patagonia.', color: 'border-cyan-500', link: 'https://www.google.com/maps/search/Camping+La+Pasarela+Rio+Manso/' },
   ];
 
-  const [items, setItems] = usePersistedState('patagonia_itinerary', initialItinerary);
+  const [items, setItems, isLoaded] = usePersistedState('v2_itinerary', initial);
   const [editingId, setEditingId] = useState<number | string | null>(null);
+
+  if (!isLoaded) return <div className="h-40 w-full bg-slate-100 animate-pulse rounded-3xl" />;
 
   const handleUpdate = (id: number | string, field: string, value: string) => setItems(items.map((item: any) => item.id === id ? { ...item, [field]: value } : item));
   const addItem = () => { const id = Date.now(); setItems([...items, { id, day: 'Fecha', title: 'Nueva Etapa', desc: '...', color: 'border-gray-200', link: '' }]); setEditingId(id); };
@@ -117,49 +131,51 @@ export const Itinerary = () => {
   );
 };
 
-// --- CREW NOTES WITH PERSISTENCE ---
+// --- CREW NOTES ---
 export const CrewNotes = () => {
-  const [notes, setNotes] = usePersistedState('patagonia_notes', []);
+  const [notes, setNotes, isLoaded] = usePersistedState<any[]>('v2_notes', []);
   const [newNote, setNewNote] = useState({ author: '', text: '' });
   
   const addNote = () => { if (newNote.author && newNote.text) { setNotes([{ id: Date.now(), ...newNote, date: new Date().toLocaleDateString() }, ...notes]); setNewNote({ author: '', text: '' }); } };
   const deleteNote = (id: number) => setNotes(notes.filter((n: any) => n.id !== id));
   
+  if (!isLoaded) return <div className="h-32 w-full bg-slate-100 animate-pulse rounded-3xl" />;
+
   return (
     <div className="space-y-4">
-      <div className="bg-white p-5 rounded-[2rem] border border-slate-100 shadow-sm space-y-3 text-slate-900">
+      <div className="bg-white p-5 rounded-[2rem] border border-slate-100 shadow-sm space-y-3">
         <div className="grid grid-cols-2 gap-3">
-          <input placeholder="Tu Nombre" className="bg-slate-50 border border-slate-200 p-3 rounded-2xl text-xs outline-none focus:border-glacier font-bold" value={newNote.author} onChange={e => setNewNote({...newNote, author: e.target.value})} />
-          <button onClick={addNote} className="bg-slate-900 text-white px-4 py-2 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-800 transition-all shadow-lg shadow-slate-200">Publicar</button>
+          <input placeholder="Tu Nombre" className="bg-slate-50 border border-slate-200 p-3 rounded-xl text-xs outline-none focus:border-glacier font-bold" value={newNote.author} onChange={e => setNewNote({...newNote, author: e.target.value})} />
+          <button onClick={addNote} className="bg-slate-900 text-white px-4 py-2 rounded-xl font-bold text-xs hover:bg-slate-800 transition-all">Publicar</button>
         </div>
         <textarea placeholder="Deja un mensaje..." className="w-full bg-slate-50 border border-slate-200 p-4 rounded-2xl text-xs outline-none focus:border-glacier h-24" value={newNote.text} onChange={e => setNewNote({...newNote, text: e.target.value})} />
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <AnimatePresence>
-          {notes.map((note: any) => (
-            <motion.div key={note.id} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="bg-white p-5 rounded-[2rem] border border-slate-100 shadow-sm relative group">
-              <button onClick={() => deleteNote(note.id)} className="absolute top-4 right-4 text-slate-200 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all"><X size={16} /></button>
-              <p className="text-[10px] font-black text-slate-800 uppercase tracking-tighter mb-1">{note.author} <span className="text-slate-300 font-bold ml-1">{note.date}</span></p>
-              <p className="text-slate-500 text-xs leading-relaxed">{note.text}</p>
-            </motion.div>
-          ))}
-        </AnimatePresence>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        {notes.map(note => (
+          <div key={note.id} className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm relative group">
+            <button onClick={() => deleteNote(note.id)} className="absolute top-3 right-3 text-slate-200 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all"><X size={14} /></button>
+            <p className="text-[10px] font-black text-slate-800 uppercase mb-1">{note.author} <span className="text-slate-300 font-medium ml-1">{note.date}</span></p>
+            <p className="text-slate-500 text-xs leading-tight">{note.text}</p>
+          </div>
+        ))}
       </div>
     </div>
   );
 };
 
-// --- GEAR CHECKLIST WITH PERSISTENCE ---
+// --- GEAR CHECKLIST ---
 export const GearChecklist = () => {
-  const initialGear = [
+  const initial = [
     { id: 1, name: 'Náutica', items: ['4 Packrafts dobles', '3 Paddle Surf', '3 Infladores'], icon: <Ship className="text-blue-400" /> },
     { id: 2, name: 'Logística', items: ['Generador', '15 Sillas', 'Gacebo', 'Walkies'], icon: <Package className="text-emerald-500" /> },
     { id: 3, name: 'Crucial', items: ['Parlante Grande', 'Alcohol', 'Hielo'], icon: <AlertTriangle className="text-orange-500" /> }
   ];
   
-  const [categories, setCategories] = usePersistedState('patagonia_gear', initialGear);
-  const [checked, setChecked] = usePersistedState('patagonia_checked', []);
+  const [categories, setCategories, isLoadedCat] = usePersistedState<any[]>('v2_gear', initial);
+  const [checked, setChecked, isLoadedCheck] = usePersistedState<string[]>('v2_checked', []);
   const [newItemText, setNewItemText] = useState<{ [key: number]: string }>({});
+
+  if (!isLoadedCat || !isLoadedCheck) return <div className="h-60 w-full bg-slate-100 animate-pulse rounded-3xl" />;
 
   const toggleItem = (item: string) => setChecked(checked.includes(item) ? checked.filter((i: string) => i !== item) : [...checked, item]);
   const addItem = (catId: number) => { const text = newItemText[catId]; if (!text) return; setCategories(categories.map((cat: any) => cat.id === catId ? { ...cat, items: [...cat.items, text] } : cat)); setNewItemText({ ...newItemText, [catId]: '' }); };
@@ -168,8 +184,8 @@ export const GearChecklist = () => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {categories.map((cat: any) => (
-        <div key={cat.id} className="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col h-full">
-          <div className="flex items-center gap-2 mb-6">{cat.icon}<h3 className="text-slate-800 font-black uppercase text-[10px] tracking-widest">{cat.name}</h3></div>
+        <div key={cat.id} className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm flex flex-col h-full">
+          <div className="flex items-center gap-2 mb-4">{cat.icon}<h3 className="text-slate-800 font-black uppercase text-[10px] tracking-widest">{cat.name}</h3></div>
           <div className="space-y-2 flex-1 mb-6">
             {cat.items.map((item: string, idx: number) => (
               <div key={item + idx} className="flex items-center justify-between group">
@@ -191,7 +207,7 @@ export const GearChecklist = () => {
   );
 };
 
-// --- EXPORT LAKES AND DISCARDED (Mantenidos) ---
+// --- OTROS COMPONENTES ---
 export const LakeList = () => {
   const lakes = [
     { name: 'Lago Falkner', highlight: '¡La gran base!', link: 'https://www.google.com/maps/search/Lago+Falkner+Neuquen/' },
@@ -207,7 +223,7 @@ export const LakeList = () => {
         <a key={i} href={lake.link} target="_blank" rel="noopener noreferrer" className="bg-white p-4 rounded-3xl border border-slate-100 shadow-sm flex flex-col items-center text-center group hover:border-glacier hover:shadow-md transition-all">
           <div className="bg-blue-50 p-2.5 rounded-2xl text-blue-500 mb-3 group-hover:bg-glacier group-hover:text-white transition-colors"><Droplets size={16} /></div>
           <h4 className="text-slate-800 font-black text-[10px] uppercase tracking-tight leading-none mb-1">{lake.name}</h4>
-          <span className="text-[8px] font-bold text-glacier uppercase block mb-2">{lake.highlight}</span>
+          <span className="text-[8px] font-bold text-glacier uppercase block">{lake.highlight}</span>
           <div className="text-[8px] font-black text-slate-300 uppercase mt-auto flex items-center gap-1">Mapa <MapPin size={8} /></div>
         </a>
       ))}
