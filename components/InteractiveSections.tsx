@@ -12,42 +12,51 @@ const SafeImage = ({ src, alt, className }: { src: string, alt: string, classNam
         <img 
           src={src} 
           alt={alt} 
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
           onError={() => setError(true)}
         />
       ) : (
-        <div className="absolute inset-0 flex items-center justify-center">
-          <Camera size={24} className="text-slate-600 opacity-20" />
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
+          <Camera size={24} className="text-white/20" />
+          <span className="text-[8px] text-white/20 uppercase font-black tracking-tighter">Sin Foto</span>
         </div>
       )}
     </div>
   );
 };
 
-// --- THE IMPERDIBLES (HIGHLIGHTS) ---
+// --- THE IMPERDIBLES (HIGHLIGHTS) REDESIGNED ---
 export const Highlights = () => {
   const data = [
-    { title: 'Hito Año Nuevo', desc: 'Festejo en Lago Falkner. Llegada anticipada el 28/12.', icon: <Star className="text-yellow-500" />, color: 'bg-yellow-50', img: '/images/falkner.jpg' },
-    { title: 'Días de Sol', desc: 'Playa Yuco, La Islita y Playa Bonita.', icon: <Droplets className="text-blue-500" />, color: 'bg-blue-50', img: '/images/yuco.jpg' },
-    { title: 'Trekking & Cascadas', desc: 'Ñivinco, Santa Ana y Dora.', icon: <Mountain className="text-emerald-500" />, color: 'bg-emerald-50', img: '/images/nivinco.jpg' },
-    { title: 'Adrenalina', desc: 'Salto al agua en el Puente Ruca Malen.', icon: <Zap className="text-orange-500" />, color: 'bg-orange-50', img: '/images/ruca-malen.jpg' },
-    { title: 'Cierre Épico', desc: 'Refugio Patagonia (Circuito Chico, Bariloche).', icon: <Beer className="text-amber-600" />, color: 'bg-amber-50', img: '/images/refugio-patagonia.jpg' },
-    { title: 'Bases Relax', desc: 'Camping Pichi Traful y Espejo Chico.', icon: <Tent className="text-indigo-500" />, color: 'bg-indigo-50', img: '/images/espejo-chico.jpg' },
+    { title: 'Hito Año Nuevo', desc: 'Festejo épico en el Lago Falkner.', icon: <Star size={16} />, img: '/images/falkner.jpg' },
+    { title: 'Días de Sol', desc: 'Playa Yuco, La Islita y Playa Bonita.', icon: <Droplets size={16} />, img: '/images/yuco.jpg' },
+    { title: 'Trekking & Cascadas', desc: 'Ñivinco, Santa Ana y Dora.', icon: <Mountain size={16} />, img: '/images/nivinco.jpg' },
+    { title: 'Adrenalina', desc: 'Salto al agua en el Puente Ruca Malen.', icon: <Zap size={16} />, img: '/images/ruca-malen.jpg' },
+    { title: 'Cierre Épico', desc: 'Refugio Patagonia (Circuito Chico).', icon: <Beer size={16} />, img: '/images/refugio-patagonia.jpg' },
+    { title: 'Bases Relax', desc: 'Camping Pichi Traful y Espejo Chico.', icon: <Tent size={16} />, img: '/images/espejo-chico.jpg' },
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
       {data.map((item, idx) => (
-        <div key={idx} className="group relative overflow-hidden rounded-[2rem] border border-white shadow-sm flex flex-col bg-white">
-          <SafeImage src={item.img} alt={item.title} className="h-32 w-full" />
-          <div className={`${item.color} p-6 flex-1`}>
-            <div className="flex gap-4">
-              <div className="bg-white p-2 rounded-xl shadow-sm h-fit">{item.icon}</div>
-              <div>
-                <h4 className="font-black text-slate-800 text-sm uppercase tracking-tight">{item.title}</h4>
-                <p className="text-slate-500 text-[11px] leading-tight mt-1">{item.desc}</p>
-              </div>
+        <div key={idx} className="group relative aspect-[4/5] rounded-[2.5rem] overflow-hidden shadow-2xl shadow-slate-200/50 transition-all duration-500 hover:-translate-y-2">
+          {/* Background Image */}
+          <SafeImage src={item.img} alt={item.title} className="absolute inset-0 w-full h-full" />
+          
+          {/* Gradient Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
+          
+          {/* Content */}
+          <div className="absolute inset-0 p-5 md:p-7 flex flex-col justify-end">
+            <div className="mb-3 w-10 h-10 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center text-white border border-white/30">
+              {item.icon}
             </div>
+            <h4 className="text-white font-black text-sm md:text-lg uppercase tracking-tight leading-tight">
+              {item.title}
+            </h4>
+            <p className="text-white/70 text-[10px] md:text-xs leading-relaxed mt-2 font-medium">
+              {item.desc}
+            </p>
           </div>
         </div>
       ))}
@@ -137,8 +146,8 @@ const discardedData = [
 export const DiscardedPlaces = () => (
   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
     {discardedData.map((place, i) => (
-      <div key={i} className="bg-slate-50 border border-slate-100 rounded-2xl overflow-hidden flex shadow-sm">
-        <SafeImage src={place.img} alt={place.name} className="w-20 shrink-0 grayscale opacity-50" />
+      <div key={i} className="bg-slate-50 border border-slate-100 rounded-2xl overflow-hidden flex shadow-sm group">
+        <SafeImage src={place.img} alt={place.name} className="w-20 shrink-0 grayscale opacity-50 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500" />
         <div className="p-4 flex-1">
           <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">{place.tag}</span>
           <h4 className="text-slate-700 font-bold text-sm mb-1 line-through opacity-50">{place.name}</h4>
@@ -157,21 +166,23 @@ export const CrewNotes = () => {
   const deleteNote = (id: number) => setNotes(notes.filter(n => n.id !== id));
   return (
     <div className="space-y-4">
-      <div className="bg-white p-5 rounded-[2rem] border border-slate-100 shadow-sm space-y-3">
+      <div className="bg-white p-5 rounded-[2rem] border border-slate-100 shadow-sm space-y-3 text-slate-900">
         <div className="grid grid-cols-2 gap-3">
-          <input placeholder="Nombre" className="bg-slate-50 border border-slate-100 p-3 rounded-xl text-xs outline-none text-slate-800" value={newNote.author} onChange={e => setNewNote({...newNote, author: e.target.value})} />
-          <button onClick={addNote} className="bg-slate-900 text-white px-4 py-2 rounded-xl font-bold text-xs hover:bg-slate-800 transition-all">Publicar</button>
+          <input placeholder="Tu Nombre" className="bg-slate-50 border border-slate-200 p-3 rounded-2xl text-xs outline-none focus:border-glacier font-bold" value={newNote.author} onChange={e => setNewNote({...newNote, author: e.target.value})} />
+          <button onClick={addNote} className="bg-slate-900 text-white px-4 py-2 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-800 transition-all shadow-lg shadow-slate-200">Publicar</button>
         </div>
-        <textarea placeholder="Mensaje para el grupo..." className="w-full bg-slate-50 border border-slate-100 p-3 rounded-xl text-xs outline-none text-slate-800 h-20" value={newNote.text} onChange={e => setNewNote({...newNote, text: e.target.value})} />
+        <textarea placeholder="Deja un mensaje importante..." className="w-full bg-slate-50 border border-slate-200 p-4 rounded-2xl text-xs outline-none focus:border-glacier h-24" value={newNote.text} onChange={e => setNewNote({...newNote, text: e.target.value})} />
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        {notes.map(note => (
-          <div key={note.id} className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm relative group">
-            <button onClick={() => deleteNote(note.id)} className="absolute top-3 right-3 text-slate-200 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all"><X size={14} /></button>
-            <p className="text-[10px] font-black text-slate-800 uppercase mb-1">{note.author} <span className="text-slate-300 font-medium ml-1">{note.date}</span></p>
-            <p className="text-slate-500 text-xs leading-tight">{note.text}</p>
-          </div>
-        ))}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <AnimatePresence>
+          {notes.map(note => (
+            <motion.div key={note.id} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="bg-white p-5 rounded-[2rem] border border-slate-100 shadow-sm relative group">
+              <button onClick={() => deleteNote(note.id)} className="absolute top-4 right-4 text-slate-200 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all"><X size={16} /></button>
+              <p className="text-[10px] font-black text-slate-800 uppercase tracking-tighter mb-1">{note.author} <span className="text-slate-300 font-bold ml-1">{note.date}</span></p>
+              <p className="text-slate-500 text-xs leading-relaxed">{note.text}</p>
+            </motion.div>
+          ))}
+        </AnimatePresence>
       </div>
     </div>
   );
@@ -192,22 +203,22 @@ export const GearChecklist = () => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {categories.map((cat) => (
-        <div key={cat.id} className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm flex flex-col h-full">
-          <div className="flex items-center gap-2 mb-4">{cat.icon}<h3 className="text-slate-800 font-black uppercase text-[10px] tracking-widest">{cat.name}</h3></div>
-          <div className="space-y-2 flex-1 mb-6">
+        <div key={cat.id} className="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col h-full">
+          <div className="flex items-center gap-2 mb-6">{cat.icon}<h3 className="text-slate-800 font-black uppercase text-[10px] tracking-[0.2em]">{cat.name}</h3></div>
+          <div className="space-y-3 flex-1 mb-6">
             {cat.items.map((item, idx) => (
               <div key={item + idx} className="flex items-center justify-between group">
                 <button onClick={() => toggleItem(item)} className="flex items-center gap-3 flex-1 text-left">
-                  {checked.includes(item) ? <CheckCircle2 size={16} className="text-emerald-500" /> : <Circle size={16} className="text-slate-200" />}
-                  <span className={`text-xs font-medium ${checked.includes(item) ? 'text-slate-300 line-through' : 'text-slate-600'}`}>{item}</span>
+                  {checked.includes(item) ? <CheckCircle2 size={18} className="text-emerald-500" /> : <Circle size={18} className="text-slate-200" />}
+                  <span className={`text-xs font-bold ${checked.includes(item) ? 'text-slate-300 line-through' : 'text-slate-600'}`}>{item}</span>
                 </button>
-                <button onClick={() => removeItem(cat.id, item)} className="text-slate-200 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all"><X size={12} /></button>
+                <button onClick={() => removeItem(cat.id, item)} className="text-slate-200 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all"><X size={14} /></button>
               </div>
             ))}
           </div>
           <div className="flex gap-2">
-            <input type="text" placeholder="..." className="flex-1 bg-slate-50 border border-slate-100 p-2 rounded-xl text-[10px] outline-none text-slate-700" value={newItemText[cat.id] || ''} onChange={(e) => setNewItemText({ ...newItemText, [cat.id]: e.target.value })} onKeyDown={(e) => e.key === 'Enter' && addItem(cat.id)} />
-            <button onClick={() => addItem(cat.id)} className="bg-slate-100 text-slate-400 p-2 rounded-xl hover:bg-slate-900 hover:text-white transition-all"><Plus size={14} /></button>
+            <input type="text" placeholder="..." className="flex-1 bg-slate-50 border border-slate-100 p-3 rounded-2xl text-[10px] outline-none text-slate-700 font-bold" value={newItemText[cat.id] || ''} onChange={(e) => setNewItemText({ ...newItemText, [cat.id]: e.target.value })} onKeyDown={(e) => e.key === 'Enter' && addItem(cat.id)} />
+            <button onClick={() => addItem(cat.id)} className="bg-slate-100 text-slate-400 p-3 rounded-2xl hover:bg-slate-900 hover:text-white transition-all shadow-sm"><Plus size={16} /></button>
           </div>
         </div>
       ))}
