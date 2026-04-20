@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { CheckCircle2, Circle, Ship, Package, AlertTriangle, Edit2, Check, Plus, Trash2, User } from 'lucide-react';
+import { CheckCircle2, Circle, Ship, Package, AlertTriangle, Edit2, Check, Plus, Trash2, User, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // --- EDITABLE ITINERARY ---
@@ -136,30 +136,94 @@ export const CrewNotes = () => {
   );
 };
 
-// --- CHECKLIST ---
+// --- DYNAMIC GEAR CHECKLIST ---
 export const GearChecklist = () => {
+  const [categories, setCategories] = useState([
+    { id: 1, name: 'Náutica', items: ['4 Packrafts dobles', '3 Paddle Surf', '3 Infladores eléctricos'], icon: <Ship className="text-glacier" /> },
+    { id: 2, name: 'Logística', items: ['Generador', '15 Sillas', 'Gacebo', 'Walkies', 'Luces'], icon: <Package className="text-forest" /> },
+    { id: 3, name: 'Crucial', items: ['Parlante Grande', 'Alcohol (Distribuidora)', 'Hielo'], icon: <AlertTriangle className="text-orange-500" /> }
+  ]);
   const [checked, setChecked] = useState<string[]>([]);
-  const toggle = (item: string) => setChecked(prev => prev.includes(item) ? prev.filter(i => i !== item) : [...prev, item]);
+  const [newItemText, setNewItemText] = useState<{ [key: number]: string }>({});
+
+  const toggleItem = (item: string) => {
+    setChecked(prev => prev.includes(item) ? prev.filter(i => i !== item) : [...prev, item]);
+  };
+
+  const addItem = (catId: number) => {
+    const text = newItemText[catId];
+    if (!text) return;
+    
+    setCategories(prev => prev.map(cat => 
+      cat.id === catId ? { ...cat, items: [...cat.items, text] } : cat
+    ));
+    setNewItemText({ ...newItemText, [catId]: '' });
+  };
+
+  const removeItem = (catId: number, itemToRemove: string) => {
+    setCategories(prev => prev.map(cat => 
+      cat.id === catId ? { ...cat, items: cat.items.filter(i => i !== itemToRemove) } : cat
+    ));
+    setChecked(prev => prev.filter(i => i !== itemToRemove));
+  };
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {[
-        { category: 'Náutica', items: ['4 Packrafts dobles', '3 Paddle Surf', '3 Infladores eléctricos'], icon: <Ship className="text-glacier" /> },
-        { category: 'Logística', items: ['Generador', '15 Sillas', 'Gacebo', 'Walkies', 'Luces'], icon: <Package className="text-forest" /> },
-        { category: 'Crucial', items: ['Parlante Grande', 'Alcohol (Distribuidora)', 'Hielo'], icon: <AlertTriangle className="text-orange-500" /> }
-      ].map((cat, i) => (
-        <div key={i} className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
-          <div className="flex items-center gap-2 mb-4">
+      {categories.map((cat) => (
+        <div key={cat.id} className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm flex flex-col h-full">
+          <div className="flex items-center gap-2 mb-6">
             {cat.icon}
-            <h3 className="text-gray-800 font-bold uppercase text-xs tracking-widest">{cat.category}</h3>
+            <h3 className="text-gray-800 font-black uppercase text-xs tracking-[0.2em]">{cat.name}</h3>
           </div>
-          <div className="space-y-2">
-            {cat.items.map(item => (
-              <button key={item} onClick={() => toggle(item)} className="flex items-center gap-3 w-full text-left group">
-                {checked.includes(item) ? <CheckCircle2 size={18} className="text-forest" /> : <Circle size={18} className="text-gray-200 group-hover:text-glacier" />}
-                <span className={`text-sm ${checked.includes(item) ? 'text-gray-400 line-through' : 'text-gray-600'}`}>{item}</span>
-              </button>
-            ))}
+          
+          <div className="space-y-3 flex-1 mb-6">
+            <AnimatePresence>
+              {cat.items.map((item, idx) => (
+                <motion.div 
+                  key={item + idx}
+                  initial={{ opacity: 0, x: -5 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  className="flex items-center justify-between group"
+                >
+                  <button 
+                    onClick={() => toggleItem(item)} 
+                    className="flex items-center gap-3 flex-1 text-left"
+                  >
+                    {checked.includes(item) ? 
+                      <CheckCircle2 size={18} className="text-forest flex-shrink-0" /> : 
+                      <Circle size={18} className="text-gray-200 group-hover:text-glacier flex-shrink-0" />
+                    }
+                    <span className={`text-sm font-medium ${checked.includes(item) ? 'text-gray-300 line-through' : 'text-gray-600'}`}>
+                      {item}
+                    </span>
+                  </button>
+                  <button 
+                    onClick={() => removeItem(cat.id, item)}
+                    className="text-gray-200 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all p-1"
+                  >
+                    <X size={14} />
+                  </button>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </div>
+
+          <div className="pt-4 border-t border-gray-50 mt-auto flex gap-2">
+            <input 
+              type="text"
+              placeholder="Nueva tarea..."
+              className="flex-1 bg-gray-50 border border-gray-100 p-2 rounded-xl text-xs outline-none focus:border-glacier text-gray-700"
+              value={newItemText[cat.id] || ''}
+              onChange={(e) => setNewItemText({ ...newItemText, [cat.id]: e.target.value })}
+              onKeyDown={(e) => e.key === 'Enter' && addItem(cat.id)}
+            />
+            <button 
+              onClick={() => addItem(cat.id)}
+              className="bg-gray-100 text-gray-400 p-2 rounded-xl hover:bg-glacier hover:text-white transition-all"
+            >
+              <Plus size={16} />
+            </button>
           </div>
         </div>
       ))}
