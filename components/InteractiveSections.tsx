@@ -1,61 +1,10 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { CheckCircle2, Circle, Ship, Package, AlertTriangle, Edit2, Check, Plus, Trash2, User, X, Info, Droplets, MapPin, ArrowRight, Star, Zap, Mountain, Beer, Tent, Camera, ExternalLink } from 'lucide-react';
+import { CheckCircle2, Circle, Ship, Package, AlertTriangle, Edit2, Check, Plus, Trash2, User, X, Info, Droplets, MapPin, ArrowRight, Star, Zap, Mountain, Beer, Tent, ExternalLink } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-// --- CUSTOM HOOK SEGURO PARA PERSISTENCIA ---
-function useSafePersistedState<T>(key: string, initialValue: T): [T, (value: T) => void, boolean] {
-  const [state, setState] = useState<T>(initialValue);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    try {
-      const saved = window.localStorage.getItem(key);
-      if (saved) {
-        setState(JSON.parse(saved));
-      }
-    } catch (e) {
-      console.error("Error al cargar localStorage", e);
-    }
-    setMounted(true);
-  }, [key]);
-
-  useEffect(() => {
-    if (mounted) {
-      try {
-        window.localStorage.setItem(key, JSON.stringify(state));
-      } catch (e) {
-        console.error("Error al guardar en localStorage", e);
-      }
-    }
-  }, [key, state, mounted]);
-
-  return [state, setState, mounted];
-}
-
-// --- CARD LINK COMPONENT ---
-const PhotoCard = ({ href, title, desc, icon, color }: { href: string, title: string, desc: string, icon: any, color: string }) => (
-  <a 
-    href={href} 
-    target="_blank" 
-    rel="noopener noreferrer"
-    className={`${color} group relative p-6 rounded-[2.5rem] border border-white shadow-sm flex flex-col justify-between transition-all hover:shadow-xl hover:-translate-y-1 overflow-hidden min-h-[160px]`}
-  >
-    <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity">
-      <MapPin size={80} />
-    </div>
-    <div>
-      <div className="bg-white p-3 rounded-2xl shadow-sm h-fit w-fit mb-4 text-slate-700">
-        {icon}
-      </div>
-      <h4 className="font-black text-slate-800 text-sm uppercase tracking-tight">{title}</h4>
-      <p className="text-slate-500 text-[11px] leading-tight mt-1 pr-8">{desc}</p>
-    </div>
-    <div className="mt-4 flex items-center gap-1.5 text-[9px] font-black text-slate-400 uppercase tracking-widest group-hover:text-glacier transition-colors">
-      Ver en Mapa <ExternalLink size={10} />
-    </div>
-  </a>
-);
+// --- COMPONENTE DE CARGA ---
+const Skeleton = ({ h = "h-40" }) => <div className={`${h} w-full bg-slate-100 animate-pulse rounded-[2rem] border border-slate-50`} />;
 
 // --- THE IMPERDIBLES ---
 export const Highlights = () => {
@@ -67,36 +16,55 @@ export const Highlights = () => {
     { title: 'Cierre Épico', desc: 'Refugio Patagonia (Circuito Chico).', icon: <Beer size={16} />, color: 'bg-amber-50', link: 'https://www.google.com/maps/search/Villa+Tacul+Bariloche/' },
     { title: 'Bases Relax', desc: 'Camping Pichi Traful y Espejo Chico.', icon: <Tent size={16} />, color: 'bg-indigo-50', link: 'https://www.google.com/maps/search/Lago+Espejo+Chico+Neuquen/' },
   ];
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-      {data.map((item, idx) => <PhotoCard key={idx} href={item.link} title={item.title} desc={item.desc} icon={item.icon} color={item.color} />)}
+      {data.map((item, idx) => (
+        <a key={idx} href={item.link} target="_blank" rel="noopener noreferrer" className={`${item.color} group p-6 rounded-[2rem] border border-white shadow-sm flex flex-col justify-between transition-all hover:shadow-xl hover:-translate-y-1 min-h-[140px]`}>
+          <div>
+            <div className="bg-white p-3 rounded-2xl shadow-sm h-fit w-fit mb-4 text-slate-700">{item.icon}</div>
+            <h4 className="font-black text-slate-800 text-sm uppercase tracking-tight">{item.title}</h4>
+            <p className="text-slate-500 text-[11px] leading-tight mt-1">{item.desc}</p>
+          </div>
+          <div className="mt-4 flex items-center gap-1.5 text-[9px] font-black text-slate-400 uppercase tracking-widest group-hover:text-glacier transition-colors">Mapa <ExternalLink size={10} /></div>
+        </a>
+      ))}
     </div>
   );
 };
 
-// --- DYNAMIC ITINERARY ---
+// --- ITINERARY ---
 export const Itinerary = () => {
   const initial = [
     { id: 1, day: '27/12', title: 'Salida Rosario', desc: 'Parada y noche en Rufino.', color: 'border-blue-500', link: 'https://www.google.com/maps/search/Rufino+Santa+Fe/' },
-    { id: 2, day: '28/12', title: 'Tramo Rufino -> Falkner', desc: '15 horas de manejo. Llegada al Falkner.', color: 'border-cyan-400', link: 'https://www.google.com/maps/search/Lago+Falkner+Neuquen/' },
-    { id: 3, day: '29/12 - 01/01', title: 'Festejos Año Nuevo', desc: '4 Noches de base en Camping Falkner.', color: 'border-emerald-500', link: 'https://www.google.com/maps/search/Lago+Falkner+Neuquen/' },
-    { id: 4, day: '02/01 - 04/01', title: 'Ruta 7 Lagos & SMAndes', desc: 'Playa Yuco, Ñivinco y SMAndes.', color: 'border-orange-400', link: 'https://www.google.com/maps/search/Playa+Yuco+San+Martin+de+los+Andes/' },
-    { id: 5, day: '05/01 - 07/01', title: 'Bariloche & Manso', desc: 'Río Manso, Puente Ruca Malen y Refugio Patagonia.', color: 'border-cyan-500', link: 'https://www.google.com/maps/search/Camping+La+Pasarela+Rio+Manso/' },
+    { id: 2, day: '28/12', title: 'Tramo Rufino -> Falkner', desc: 'Llegada al Falkner.', color: 'border-cyan-400', link: 'https://www.google.com/maps/search/Lago+Falkner+Neuquen/' },
+    { id: 3, day: '29/12 - 01/01', title: 'Festejos Año Nuevo', desc: 'Base en Camping Falkner.', color: 'border-emerald-500', link: 'https://www.google.com/maps/search/Lago+Falkner+Neuquen/' },
   ];
 
-  const [items, setItems, mounted] = useSafePersistedState('v3_itinerary', initial);
+  const [items, setItems] = useState<any[]>([]);
+  const [mounted, setMounted] = useState(false);
   const [editingId, setEditingId] = useState<number | string | null>(null);
 
-  if (!mounted) return <div className="h-60 w-full bg-slate-100 animate-pulse rounded-[2rem]" />;
+  useEffect(() => {
+    const saved = localStorage.getItem('banda_v4_itinerary');
+    setItems(saved ? JSON.parse(saved) : initial);
+    setMounted(true);
+  }, []);
 
-  const handleUpdate = (id: number | string, field: string, value: string) => setItems(items.map((item: any) => item.id === id ? { ...item, [field]: value } : item));
-  const addItem = () => { const id = Date.now(); setItems([...items, { id, day: 'Fecha', title: 'Nueva Etapa', desc: '...', color: 'border-gray-200', link: '' }]); setEditingId(id); };
-  const removeItem = (id: number | string) => setItems(items.filter((i: any) => i.id !== id));
+  useEffect(() => {
+    if (mounted) localStorage.setItem('banda_v4_itinerary', JSON.stringify(items));
+  }, [items, mounted]);
+
+  if (!mounted) return <Skeleton h="h-60" />;
+
+  const handleUpdate = (id: number | string, field: string, value: string) => setItems(items.map(i => i.id === id ? { ...i, [field]: value } : i));
+  const addItem = () => { const id = Date.now(); setItems([...items, { id, day: 'Fecha', title: 'Nueva Etapa', desc: '...', color: 'border-slate-200', link: '' }]); setEditingId(id); };
+  const removeItem = (id: number | string) => setItems(items.filter(i => i.id !== id));
 
   return (
     <div className="space-y-4">
       <AnimatePresence mode="popLayout">
-        {items.map((item: any) => (
+        {items.map((item) => (
           <motion.div key={item.id} layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, scale: 0.95 }} className={`relative p-6 bg-white border-l-4 ${item.color} rounded-r-[2rem] shadow-sm border-y border-r border-gray-100`}>
             <div className="flex justify-between items-start gap-4">
               <div className="flex-1 text-slate-900">
@@ -110,52 +78,59 @@ export const Itinerary = () => {
                   <>
                     <h4 className="text-slate-800 font-bold text-base leading-tight mt-1">{item.title}</h4>
                     <p className="text-slate-500 text-xs mt-2 leading-relaxed">{item.desc}</p>
-                    {item.link && (
-                      <a href={item.link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 mt-4 text-[10px] font-black text-glacier uppercase hover:text-blue-600 transition-colors">
-                        Mapa <MapPin size={10} />
-                      </a>
-                    )}
+                    {item.link && <a href={item.link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 mt-4 text-[10px] font-black text-glacier uppercase">Mapa <MapPin size={10} /></a>}
                   </>
                 )}
               </div>
               <div className="flex gap-1">
-                <button onClick={() => setEditingId(editingId === item.id ? null : item.id)} className="p-2 text-slate-300 hover:text-glacier transition-colors">{editingId === item.id ? <Check size={16} /> : <Edit2 size={14} />}</button>
-                <button onClick={() => removeItem(item.id)} className="p-2 text-slate-300 hover:text-red-400 transition-colors"><Trash2 size={14} /></button>
+                <button onClick={() => setEditingId(editingId === item.id ? null : item.id)} className="p-2 text-slate-300 hover:text-glacier">{editingId === item.id ? <Check size={16} /> : <Edit2 size={14} />}</button>
+                <button onClick={() => removeItem(item.id)} className="p-2 text-slate-300 hover:text-red-400"><Trash2 size={14} /></button>
               </div>
             </div>
           </motion.div>
         ))}
       </AnimatePresence>
-      <button onClick={addItem} className="w-full py-4 border-2 border-dashed border-slate-200 rounded-3xl text-slate-400 font-bold text-xs hover:border-glacier hover:text-glacier transition-all flex items-center justify-center gap-2"><Plus size={16} /> Agregar Etapa</button>
+      <button onClick={addItem} className="w-full py-4 border-2 border-dashed border-slate-200 rounded-3xl text-slate-400 font-bold text-xs hover:border-glacier hover:text-glacier flex items-center justify-center gap-2"><Plus size={16} /> Agregar Etapa</button>
     </div>
   );
 };
 
 // --- CREW NOTES ---
 export const CrewNotes = () => {
-  const [notes, setNotes, mounted] = useSafePersistedState<any[]>('v3_notes', []);
+  const [notes, setNotes] = useState<any[]>([]);
+  const [mounted, setMounted] = useState(false);
   const [newNote, setNewNote] = useState({ author: '', text: '' });
-  
+
+  useEffect(() => {
+    const saved = localStorage.getItem('banda_v4_notes');
+    if (saved) setNotes(JSON.parse(saved));
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (mounted) localStorage.setItem('banda_v4_notes', JSON.stringify(notes));
+  }, [notes, mounted]);
+
+  if (!mounted) return <Skeleton h="h-32" />;
+
   const addNote = () => { if (newNote.author && newNote.text) { setNotes([{ id: Date.now(), ...newNote, date: new Date().toLocaleDateString() }, ...notes]); setNewNote({ author: '', text: '' }); } };
-  const deleteNote = (id: number) => setNotes(notes.filter((n: any) => n.id !== id));
-  
-  if (!mounted) return <div className="h-32 w-full bg-slate-100 animate-pulse rounded-[2rem]" />;
+  const deleteNote = (id: number) => setNotes(notes.filter(n => n.id !== id));
 
   return (
     <div className="space-y-4">
       <div className="bg-white p-5 rounded-[2rem] border border-slate-100 shadow-sm space-y-3">
         <div className="grid grid-cols-2 gap-3">
-          <input placeholder="Tu Nombre" className="bg-slate-50 border border-slate-200 p-3 rounded-xl text-xs outline-none focus:border-glacier font-bold text-slate-800" value={newNote.author} onChange={e => setNewNote({...newNote, author: e.target.value})} />
-          <button onClick={addNote} className="bg-slate-900 text-white px-4 py-2 rounded-xl font-bold text-xs hover:bg-slate-800 transition-all shadow-sm">Publicar</button>
+          <input placeholder="Nombre" className="bg-slate-50 border border-slate-200 p-3 rounded-xl text-xs outline-none font-bold text-slate-800" value={newNote.author} onChange={e => setNewNote({...newNote, author: e.target.value})} />
+          <button onClick={addNote} className="bg-slate-900 text-white px-4 py-2 rounded-xl font-bold text-xs">Publicar</button>
         </div>
-        <textarea placeholder="Deja un mensaje..." className="w-full bg-slate-50 border border-slate-200 p-4 rounded-2xl text-xs outline-none focus:border-glacier h-24 text-slate-800" value={newNote.text} onChange={e => setNewNote({...newNote, text: e.target.value})} />
+        <textarea placeholder="Mensaje..." className="w-full bg-slate-50 border border-slate-200 p-4 rounded-2xl text-xs outline-none h-24 text-slate-800" value={newNote.text} onChange={e => setNewNote({...newNote, text: e.target.value})} />
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <AnimatePresence mode="popLayout">
-          {notes.map((note: any) => (
+          {notes.map((note) => (
             <motion.div key={note.id} layout initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="bg-white p-5 rounded-[2rem] border border-slate-100 shadow-sm relative group">
-              <button onClick={() => deleteNote(note.id)} className="absolute top-4 right-4 text-slate-200 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all"><X size={16} /></button>
-              <p className="text-[10px] font-black text-slate-800 uppercase tracking-tighter mb-1">{note.author} <span className="text-slate-300 font-bold ml-1">{note.date}</span></p>
+              <button onClick={() => deleteNote(note.id)} className="absolute top-4 right-4 text-slate-200 hover:text-red-400 opacity-0 group-hover:opacity-100"><X size={16} /></button>
+              <p className="text-[10px] font-black text-slate-800 uppercase mb-1">{note.author} <span className="text-slate-300 font-bold ml-1">{note.date}</span></p>
               <p className="text-slate-500 text-xs leading-relaxed">{note.text}</p>
             </motion.div>
           ))}
@@ -173,15 +148,31 @@ export const GearChecklist = () => {
     { id: 3, name: 'Crucial', items: ['Parlante Grande', 'Alcohol', 'Hielo'], icon: <AlertTriangle className="text-orange-500" /> }
   ];
   
-  const [categories, setCategories, mountedCat] = useSafePersistedState<any[]>('v3_gear', initial);
-  const [checked, setChecked, mountedCheck] = useSafePersistedState<string[]>('v3_checked', []);
+  const [categories, setCategories] = useState<any[]>([]);
+  const [checked, setChecked] = useState<string[]>([]);
+  const [mounted, setMounted] = useState(false);
   const [newItemText, setNewItemText] = useState<{ [key: number]: string }>({});
 
-  if (!mountedCat || !mountedCheck) return <div className="h-60 w-full bg-slate-100 animate-pulse rounded-[2rem]" />;
+  useEffect(() => {
+    const savedCat = localStorage.getItem('banda_v4_gear');
+    const savedCheck = localStorage.getItem('banda_v4_checked');
+    setCategories(savedCat ? JSON.parse(savedCat) : initial);
+    setChecked(savedCheck ? JSON.parse(savedCheck) : []);
+    setMounted(true);
+  }, []);
 
-  const toggleItem = (item: string) => setChecked(checked.includes(item) ? checked.filter((i: string) => i !== item) : [...checked, item]);
-  const addItem = (catId: number) => { const text = newItemText[catId]; if (!text) return; setCategories(categories.map((cat: any) => cat.id === catId ? { ...cat, items: [...cat.items, text] } : cat)); setNewItemText({ ...newItemText, [catId]: '' }); };
-  const removeItem = (catId: number, itemToRemove: string) => { setCategories(categories.map((cat: any) => cat.id === catId ? { ...cat, items: cat.items.filter((i: string) => i !== itemToRemove) } : cat)); setChecked(checked.filter((i: string) => i !== itemToRemove)); };
+  useEffect(() => {
+    if (mounted) {
+      localStorage.setItem('banda_v4_gear', JSON.stringify(categories));
+      localStorage.setItem('banda_v4_checked', JSON.stringify(checked));
+    }
+  }, [categories, checked, mounted]);
+
+  if (!mounted) return <Skeleton h="h-60" />;
+
+  const toggleItem = (item: string) => setChecked(checked.includes(item) ? checked.filter(i => i !== item) : [...checked, item]);
+  const addItem = (catId: number) => { const text = newItemText[catId]; if (!text) return; setCategories(categories.map(cat => cat.id === catId ? { ...cat, items: [...cat.items, text] } : cat)); setNewItemText({ ...newItemText, [catId]: '' }); };
+  const removeItem = (catId: number, itemToRemove: string) => { setCategories(categories.map(cat => cat.id === catId ? { ...cat, items: cat.items.filter(i => i !== itemToRemove) } : cat)); setChecked(checked.filter(i => i !== itemToRemove)); };
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-slate-900">
