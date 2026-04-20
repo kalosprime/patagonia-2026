@@ -6,22 +6,25 @@ import { motion, AnimatePresence } from 'framer-motion';
 // --- THE IMPERDIBLES (HIGHLIGHTS) ---
 export const Highlights = () => {
   const data = [
-    { title: 'Hito Año Nuevo', desc: 'Festejo en Lago Falkner. Llegada anticipada el 28/12.', icon: <Star className="text-yellow-500" />, color: 'bg-yellow-50' },
-    { title: 'Días de Sol', desc: 'Playa Yuco, La Islita y Playa Bonita.', icon: <Droplets className="text-blue-500" />, color: 'bg-blue-50' },
-    { title: 'Trekking & Cascadas', desc: 'Ñivinco, Santa Ana y Dora.', icon: <Mountain className="text-emerald-500" />, color: 'bg-emerald-50' },
-    { title: 'Adrenalina', desc: 'Salto al agua en el Puente Ruca Malen.', icon: <Zap className="text-orange-500" />, color: 'bg-orange-50' },
-    { title: 'Cierre Épico', desc: 'Refugio Patagonia (Circuito Chico, Bariloche).', icon: <Beer className="text-amber-600" />, color: 'bg-amber-50' },
-    { title: 'Bases Relax', desc: 'Camping Pichi Traful y Espejo Chico.', icon: <Tent className="text-indigo-500" />, color: 'bg-indigo-50' },
+    { title: 'Hito Año Nuevo', desc: 'Festejo en Lago Falkner. Llegada anticipada el 28/12.', icon: <Star className="text-yellow-500" />, color: 'bg-yellow-50', img: 'http://googleusercontent.com/image_collection/image_retrieval/13082579514434522474_0' },
+    { title: 'Días de Sol', desc: 'Playa Yuco, La Islita y Playa Bonita.', icon: <Droplets className="text-blue-500" />, color: 'bg-blue-50', img: 'http://googleusercontent.com/image_collection/image_retrieval/14498103573482023842_0' },
+    { title: 'Trekking & Cascadas', desc: 'Ñivinco, Santa Ana y Dora.', icon: <Mountain className="text-emerald-500" />, color: 'bg-emerald-50', img: 'http://googleusercontent.com/image_collection/image_retrieval/14622656532765559652_0' },
+    { title: 'Adrenalina', desc: 'Salto al agua en el Puente Ruca Malen.', icon: <Zap className="text-orange-500" />, color: 'bg-orange-50', img: 'http://googleusercontent.com/image_collection/image_retrieval/5052811161638966469_0' },
+    { title: 'Cierre Épico', desc: 'Refugio Patagonia (Circuito Chico, Bariloche).', icon: <Beer className="text-amber-600" />, color: 'bg-amber-50', img: 'http://googleusercontent.com/image_collection/image_retrieval/7761940285421365418_0' },
+    { title: 'Bases Relax', desc: 'Camping Pichi Traful y Espejo Chico.', icon: <Tent className="text-indigo-500" />, color: 'bg-indigo-50', img: 'http://googleusercontent.com/image_collection/image_retrieval/114038683621248637_0' },
   ];
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
       {data.map((item, idx) => (
-        <div key={idx} className={`${item.color} p-5 rounded-3xl border border-white shadow-sm flex gap-4`}>
-          <div className="bg-white p-3 rounded-2xl shadow-sm h-fit">{item.icon}</div>
-          <div>
+        <div key={idx} className={`group relative overflow-hidden rounded-3xl border border-white shadow-sm flex flex-col`}>
+          <div className="h-32 w-full overflow-hidden">
+            <img src={item.img} alt={item.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+            <div className={`absolute top-2 left-2 p-2 rounded-xl shadow-sm bg-white/90 backdrop-blur-sm`}>{item.icon}</div>
+          </div>
+          <div className={`${item.color} p-4 flex-1`}>
             <h4 className="font-black text-slate-800 text-sm uppercase tracking-tight">{item.title}</h4>
-            <p className="text-slate-500 text-xs leading-tight mt-1">{item.desc}</p>
+            <p className="text-slate-500 text-[11px] leading-tight mt-1">{item.desc}</p>
           </div>
         </div>
       ))}
@@ -31,26 +34,31 @@ export const Highlights = () => {
 
 // --- DYNAMIC ITINERARY ---
 const initialItinerary = [
-  { id: 1, day: '27/12', title: 'Salida Rosario', desc: 'Parada y noche en Rufino.', color: 'border-blue-500' },
-  { id: 2, day: '28/12', title: 'Tramo Rufino -> Falkner', desc: '15 horas de manejo. Llegada al Falkner.', color: 'border-cyan-400' },
-  { id: 3, day: '29/12 - 01/01', title: 'Festejos Año Nuevo', desc: '4 Noches de base en Camping Falkner.', color: 'border-emerald-500' },
-  { id: 4, day: '02/01 - 04/01', title: 'Ruta 7 Lagos & SMAndes', desc: 'Playa Yuco, Ñivinco y SMAndes.', color: 'border-orange-400' },
-  { id: 5, day: '05/01 - 07/01', title: 'Bariloche & Manso', desc: 'Río Manso, Puente Ruca Malen y Refugio Patagonia.', color: 'border-cyan-500' },
+  { id: 1, day: '27/12', title: 'Salida Rosario', desc: 'Parada y noche en Rufino.', color: 'border-blue-500', img: 'https://images.unsplash.com/photo-1544256718-3bcf237f3974?auto=format&fit=crop&q=80&w=800' },
+  { id: 2, day: '28/12', title: 'Tramo Rufino -> Falkner', desc: '15 horas de manejo. Llegada al Falkner.', color: 'border-cyan-400', img: 'http://googleusercontent.com/image_collection/image_retrieval/13082579514434522474_0' },
+  { id: 3, day: '29/12 - 01/01', title: 'Festejos Año Nuevo', desc: '4 Noches de base en Camping Falkner.', color: 'border-emerald-500', img: 'http://googleusercontent.com/image_collection/image_retrieval/14622656532765559652_0' },
+  { id: 4, day: '02/01 - 04/01', title: 'Ruta 7 Lagos & SMAndes', desc: 'Playa Yuco, Ñivinco y SMAndes.', color: 'border-orange-400', img: 'http://googleusercontent.com/image_collection/image_retrieval/14498103573482023842_0' },
+  { id: 5, day: '05/01 - 07/01', title: 'Bariloche & Manso', desc: 'Río Manso, Puente Ruca Malen y Refugio Patagonia.', color: 'border-cyan-500', img: 'http://googleusercontent.com/image_collection/image_retrieval/2982453758345843028_0' },
 ];
 
 export const Itinerary = () => {
   const [items, setItems] = useState(initialItinerary);
   const [editingId, setEditingId] = useState<number | string | null>(null);
   const handleUpdate = (id: number | string, field: string, value: string) => setItems(items.map(item => item.id === id ? { ...item, [field]: value } : item));
-  const addItem = () => { const id = Date.now(); setItems([...items, { id, day: 'Fecha', title: 'Nueva Etapa', desc: '...', color: 'border-gray-200' }]); setEditingId(id); };
+  const addItem = () => { const id = Date.now(); setItems([...items, { id, day: 'Fecha', title: 'Nueva Etapa', desc: '...', color: 'border-gray-200', img: '' }]); setEditingId(id); };
   const removeItem = (id: number | string) => setItems(items.filter(i => i.id !== id));
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <AnimatePresence>
         {items.map((item) => (
-          <motion.div key={item.id} layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} className={`relative p-5 bg-white border-l-4 ${item.color} rounded-r-2xl shadow-sm border-y border-r border-gray-100`}>
-            <div className="flex justify-between items-start">
+          <motion.div key={item.id} layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} className={`relative flex flex-col md:flex-row bg-white border-l-4 ${item.color} rounded-r-3xl shadow-sm border-y border-r border-gray-100 overflow-hidden`}>
+            {item.img && (
+              <div className="w-full md:w-48 h-32 md:h-auto overflow-hidden">
+                <img src={item.img} alt={item.title} className="w-full h-full object-cover" />
+              </div>
+            )}
+            <div className="p-5 flex-1 flex justify-between items-start">
               <div className="flex-1">
                 <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{item.day}</span>
                 {editingId === item.id ? (
@@ -59,7 +67,7 @@ export const Itinerary = () => {
                     <textarea className="w-full bg-slate-50 border border-slate-200 p-2 rounded-lg text-slate-600 text-xs" value={item.desc} onChange={(e) => handleUpdate(item.id, 'desc', e.target.value)} />
                   </div>
                 ) : (
-                  <><h4 className="text-slate-800 font-bold text-base leading-tight mt-1">{item.title}</h4><p className="text-slate-500 text-xs mt-2">{item.desc}</p></>
+                  <><h4 className="text-slate-800 font-bold text-base leading-tight mt-1">{item.title}</h4><p className="text-slate-500 text-xs mt-2 leading-relaxed">{item.desc}</p></>
                 )}
               </div>
               <div className="flex gap-1">
@@ -70,26 +78,31 @@ export const Itinerary = () => {
           </motion.div>
         ))}
       </AnimatePresence>
-      <button onClick={addItem} className="w-full py-3 border-2 border-dashed border-slate-200 rounded-2xl text-slate-400 font-bold text-xs hover:border-glacier hover:text-glacier transition-all flex items-center justify-center gap-2"><Plus size={16} /> Agregar Etapa</button>
+      <button onClick={addItem} className="w-full py-4 border-2 border-dashed border-slate-200 rounded-3xl text-slate-400 font-bold text-xs hover:border-glacier hover:text-glacier transition-all flex items-center justify-center gap-2"><Plus size={16} /> Agregar Etapa</button>
     </div>
   );
 };
 
 // --- DISCARDED PLACES ---
 const discardedData = [
-  { name: 'Playa Catritre', reason: 'Muy familiar. Playa Yuco tiene mejor onda.', tag: 'San Martín' },
-  { name: 'Laguna Negra', reason: 'Camping básico. Priorizamos Falkner/Hermoso.', tag: 'Bariloche' },
-  { name: 'Cascada Vullignanco', reason: 'No destaca frente a Ñivinco.', tag: 'Ruta 40' },
-  { name: 'El Bolsón / Cajón del Azul', reason: 'Demasiado manejo. Priorizamos Río Manso.', tag: 'Sur Profundo' },
+  { name: 'Playa Catritre', reason: 'Muy familiar. Playa Yuco tiene mejor onda.', tag: 'San Martín', img: 'http://googleusercontent.com/image_collection/image_retrieval/2210289211563116704_0' },
+  { name: 'Laguna Negra', reason: 'Camping básico. Priorizamos Falkner/Hermoso.', tag: 'Bariloche', img: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&q=80&w=400' },
+  { name: 'Cascada Vullignanco', reason: 'No destaca frente a Ñivinco.', tag: 'Ruta 40', img: 'http://googleusercontent.com/image_collection/image_retrieval/14622656532765559652_0' },
+  { name: 'El Bolsón / Cajón del Azul', reason: 'Demasiado manejo. Priorizamos Río Manso.', tag: 'Sur Profundo', img: 'http://googleusercontent.com/image_collection/image_retrieval/2982453758345843028_0' },
 ];
 
 export const DiscardedPlaces = () => (
   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
     {discardedData.map((place, i) => (
-      <div key={i} className="bg-slate-50 border border-slate-100 p-5 rounded-2xl">
-        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">{place.tag}</span>
-        <h4 className="text-slate-700 font-bold text-sm mb-1 line-through opacity-50">{place.name}</h4>
-        <p className="text-slate-500 text-[11px] italic leading-tight">"{place.reason}"</p>
+      <div key={i} className="bg-slate-50 border border-slate-100 rounded-2xl overflow-hidden flex shadow-sm group">
+        <div className="w-24 flex-shrink-0 overflow-hidden">
+          <img src={place.img} alt={place.name} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" />
+        </div>
+        <div className="p-4 flex-1">
+          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">{place.tag}</span>
+          <h4 className="text-slate-700 font-bold text-sm mb-1 line-through opacity-50">{place.name}</h4>
+          <p className="text-slate-500 text-[10px] italic leading-tight">"{place.reason}"</p>
+        </div>
       </div>
     ))}
   </div>
@@ -97,21 +110,25 @@ export const DiscardedPlaces = () => (
 
 // --- THE LAKES ---
 const lakes = [
-  { name: 'Lago Falkner', highlight: '¡La gran base!', desc: 'Acampe largo y Año Nuevo.' },
-  { name: 'Lago Lácar', highlight: 'Caribe del Sur', desc: 'Playa Yuco y La Islita.' },
-  { name: 'Lago Correntoso', highlight: 'Aguas Esmeralda', desc: 'Parada en Villa La Angostura.' },
-  { name: 'Lago Hermoso', highlight: 'Paz absoluta', desc: 'Camping tranquilo y reparado.' },
-  { name: 'Lago Traful', highlight: 'Bosque Sumergido', desc: 'Excursión en lancha.' },
-  { name: 'Espejo Chico', highlight: 'Plan B Perfecto', desc: 'Refugio cristalino.' },
+  { name: 'Lago Falkner', highlight: '¡La gran base!', img: 'http://googleusercontent.com/image_collection/image_retrieval/13082579514434522474_0' },
+  { name: 'Lago Lácar', highlight: 'Caribe del Sur', img: 'http://googleusercontent.com/image_collection/image_retrieval/14498103573482023842_0' },
+  { name: 'Lago Correntoso', highlight: 'Aguas Esmeralda', img: 'http://googleusercontent.com/image_collection/image_retrieval/13520298041826338454_0' },
+  { name: 'Lago Hermoso', highlight: 'Paz absoluta', img: 'http://googleusercontent.com/image_collection/image_retrieval/13347329245066033780_0' },
+  { name: 'Lago Traful', highlight: 'Bosque Sumergido', img: 'http://googleusercontent.com/image_collection/image_retrieval/9663323013117816447_0' },
+  { name: 'Espejo Chico', highlight: 'Plan B Perfecto', img: 'http://googleusercontent.com/image_collection/image_retrieval/114038683621248637_0' },
 ];
 
 export const LakeList = () => (
   <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
     {lakes.map((lake, i) => (
-      <div key={i} className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
-        <Droplets size={16} className="text-blue-400 mb-2" />
-        <h4 className="text-slate-800 font-black text-[10px] uppercase tracking-tight leading-none mb-1">{lake.name}</h4>
-        <span className="text-[8px] font-bold text-glacier uppercase block">{lake.highlight}</span>
+      <div key={i} className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden flex flex-col group">
+        <div className="h-20 overflow-hidden">
+          <img src={lake.img} alt={lake.name} className="w-full h-full object-cover transition-transform group-hover:scale-110" />
+        </div>
+        <div className="p-3">
+          <h4 className="text-slate-800 font-black text-[9px] uppercase tracking-tight leading-none mb-1">{lake.name}</h4>
+          <span className="text-[8px] font-bold text-glacier uppercase block">{lake.highlight}</span>
+        </div>
       </div>
     ))}
   </div>
