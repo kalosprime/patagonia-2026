@@ -2,7 +2,7 @@
 import dynamic from 'next/dynamic';
 import { Countdown, Financials, VehicleFleet } from '@/components/CoreComponents';
 import { Itinerary, GearChecklist } from '@/components/InteractiveSections';
-import { Users, Map as MapIcon, Calendar, DollarSign, Tool } from 'lucide-react';
+import { Users, Map as MapIcon, Calendar, DollarSign, Wrench } from 'lucide-react';
 
 // Dynamic import for Leaflet (No SSR)
 const MapComponent = dynamic(() => import('@/components/MapComponent'), { 
@@ -72,7 +72,7 @@ export default function PatagoniaDashboard() {
         {/* GEAR SECTION */}
         <section>
           <div className="flex items-center gap-2 mb-6">
-            <Tool className="text-glacier" size={20} />
+            <Wrench className="text-glacier" size={20} />
             <h2 className="text-xl font-bold uppercase">Equipamiento & Tareas</h2>
           </div>
           <GearChecklist />
