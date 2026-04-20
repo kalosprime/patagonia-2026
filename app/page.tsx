@@ -1,10 +1,29 @@
 'use client';
 import dynamic from 'next/dynamic';
 import { Countdown, Financials, VehicleFleet } from '@/components/CoreComponents';
-import { Itinerary, GearChecklist, CrewNotes, DiscardedPlaces, LakeList, Highlights } from '@/components/InteractiveSections';
 import { Users, Map as MapIcon, Calendar, DollarSign, Wrench, MessageSquare, History, Droplets, Star } from 'lucide-react';
 
-// Dynamic import for Leaflet (No SSR)
+// --- CARGA DINÁMICA SIN SSR (Esto elimina el error de raíz) ---
+const Itinerary = dynamic(() => import('@/components/InteractiveSections').then(mod => mod.Itinerary), { 
+  ssr: false, 
+  loading: () => <div className="h-60 w-full bg-slate-100 animate-pulse rounded-[2rem]" /> 
+});
+
+const GearChecklist = dynamic(() => import('@/components/InteractiveSections').then(mod => mod.GearChecklist), { 
+  ssr: false, 
+  loading: () => <div className="h-60 w-full bg-slate-100 animate-pulse rounded-[2rem]" /> 
+});
+
+const CrewNotes = dynamic(() => import('@/components/InteractiveSections').then(mod => mod.CrewNotes), { 
+  ssr: false, 
+  loading: () => <div className="h-40 w-full bg-slate-100 animate-pulse rounded-[2rem]" /> 
+});
+
+const Highlights = dynamic(() => import('@/components/InteractiveSections').then(mod => mod.Highlights), { ssr: false });
+const LakeList = dynamic(() => import('@/components/InteractiveSections').then(mod => mod.LakeList), { ssr: false });
+const DiscardedPlaces = dynamic(() => import('@/components/InteractiveSections').then(mod => mod.DiscardedPlaces), { ssr: false });
+
+// Mapa también dinámico
 const MapComponent = dynamic(() => import('@/components/MapComponent'), { 
   ssr: false,
   loading: () => <div className="h-[400px] w-full bg-slate-100 animate-pulse rounded-3xl" />
@@ -19,7 +38,7 @@ export default function PatagoniaDashboard() {
         
         {/* HERO SECTION */}
         <section className="text-center space-y-4">
-          <h1 className="text-4xl md:text-6xl font-black tracking-tighter text-slate-800">
+          <h1 className="text-4xl md:text-5xl font-black tracking-tighter text-slate-800 uppercase leading-none">
             VIAJE AL SUR <span className="text-glacier">CON LA BANDA</span>
           </h1>
           <p className="text-slate-400 font-bold uppercase tracking-[0.2em] text-[10px]">Command Center • 15 Amigos • 3 Motorhomes</p>
