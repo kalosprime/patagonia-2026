@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { CheckCircle2, Circle, Ship, Package, AlertTriangle, Edit2, Check, Plus, Trash2, X, MapPin, Star, Zap, Mountain, Beer, Tent, ExternalLink, RefreshCw } from 'lucide-react';
+import { CheckCircle2, Circle, Ship, Package, AlertTriangle, Edit2, Check, Plus, Trash2, X, MapPin, Star, Zap, Mountain, Beer, Tent, ExternalLink, RefreshCw, Droplets } from 'lucide-react';
 
 const Skeleton = ({ h = "h-40" }) => <div className={`${h} w-full bg-slate-100 animate-pulse rounded-[2rem] border border-slate-50`} />;
 
@@ -14,8 +14,8 @@ export const Highlights = () => {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
       {data.map((item, idx) => (
-        <a key={idx} href={item.link} target="_blank" rel="noopener noreferrer" className={`${item.color} p-6 rounded-[2rem] border border-white shadow-sm flex flex-col justify-between min-h-[120px]`}>
-          <div className="bg-white p-2 rounded-xl shadow-sm w-fit mb-2">{item.icon}</div>
+        <a key={idx} href={item.link} target="_blank" rel="noopener noreferrer" className={`${item.color} group p-6 rounded-[2.5rem] border border-white shadow-sm flex flex-col justify-between min-h-[120px]`}>
+          <div className="bg-white p-2 rounded-xl shadow-sm w-fit mb-2 text-slate-800">{item.icon}</div>
           <h4 className="font-black text-slate-800 text-sm uppercase tracking-tight">{item.title}</h4>
         </a>
       ))}
@@ -65,7 +65,7 @@ export const Itinerary = () => {
       {saving && <div className="fixed top-4 right-4 bg-slate-900 text-white px-4 py-2 rounded-full text-[10px] font-black z-50 flex items-center gap-2 shadow-2xl animate-pulse"><RefreshCw size={10} className="animate-spin" /> SINCRONIZANDO...</div>}
       {items.map((i) => (
         <div key={i.id} className={`p-6 bg-white border-l-4 ${i.color || 'border-slate-100'} rounded-r-[2rem] shadow-sm flex justify-between items-start`}>
-          <div className="flex-1">
+          <div className="flex-1 text-slate-800">
             {editingId === i.id ? (
               <div className="space-y-2 pr-4">
                 <input className="w-full bg-slate-50 border p-2 rounded text-[10px] font-black" value={i.day} onChange={(e) => setItems(items.map(x => x.id === i.id ? {...x, day: e.target.value} : x))} />
@@ -111,15 +111,15 @@ export const CrewNotes = () => {
   return (
     <div className="space-y-4">
       <div className="bg-white p-6 rounded-[2.5rem] shadow-sm space-y-3">
-        <input placeholder="Nombre" className="w-full bg-slate-50 p-3 rounded-xl text-xs text-slate-800 outline-none" value={name} onChange={e => setName(e.target.value)} />
-        <textarea placeholder="Mensaje..." className="w-full bg-slate-50 p-3 rounded-xl text-xs h-20 text-slate-800 outline-none" value={text} onChange={e => setText(e.target.value)} />
-        <button onClick={() => { if(name && text) { const n = [{ id: Date.now(), name, text, date: new Date().toLocaleDateString() }, ...notes]; save(n); setText(''); } }} className="w-full bg-slate-900 text-white py-3 rounded-xl font-bold text-xs">PUBLICAR</button>
+        <input placeholder="Nombre" className="w-full bg-slate-50 border p-3 rounded-xl text-xs text-slate-800 outline-none" value={name} onChange={e => setName(e.target.value)} />
+        <textarea placeholder="Mensaje..." className="w-full bg-slate-50 border p-3 rounded-xl text-xs h-20 text-slate-800 outline-none" value={text} onChange={e => setText(e.target.value)} />
+        <button onClick={() => { if(name && text) { const n = [{ id: Date.now(), name, text, date: new Date().toLocaleDateString() }, ...notes]; save(n); setText(''); } }} className="bg-slate-900 text-white py-3 rounded-xl font-bold text-xs text-center">PUBLICAR</button>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-slate-900">
         {notes.map(n => (
-          <div key={n.id} className="bg-white p-5 rounded-3xl border border-slate-50 shadow-sm relative group">
+          <div key={n.id} className="bg-white p-5 rounded-3xl border border-slate-50 shadow-sm relative group text-slate-800 text-left">
             <button onClick={() => save(notes.filter(x => x.id !== n.id))} className="absolute top-4 right-4 text-slate-200 hover:text-red-400 opacity-0 group-hover:opacity-100"><X size={14} /></button>
-            <p className="text-[10px] font-black uppercase text-slate-800">{n.name} <span className="text-slate-300 ml-1 font-medium">{n.date}</span></p>
+            <p className="text-[10px] font-black uppercase">{n.name} <span className="text-slate-300 ml-1 font-medium">{n.date}</span></p>
             <p className="text-slate-600 text-xs mt-1 leading-relaxed">{n.text}</p>
           </div>
         ))}
@@ -161,7 +161,7 @@ export const GearChecklist = () => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-slate-900">
       {cat.map((c: any) => (
-        <div key={c.id} className="bg-white p-6 rounded-[2.5rem] border border-slate-50 shadow-sm flex flex-col h-full">
+        <div key={c.id} className="bg-white p-6 rounded-[2.5rem] border border-slate-50 shadow-sm flex flex-col h-full text-left">
           <h3 className="text-slate-800 font-black uppercase text-[10px] tracking-widest mb-4">{c.name}</h3>
           <div className="space-y-2 flex-1">
             {c.items.map((item: string) => (
@@ -174,6 +174,38 @@ export const GearChecklist = () => {
               </div>
             ))}
           </div>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+// --- OTROS (ESTOS FALTABAN) ---
+export const LakeList = () => {
+  const lakes = ['Falkner', 'Lácar', 'Hermoso', 'Traful', 'Correntoso', 'Espejo'];
+  return (
+    <div className="grid grid-cols-2 sm:grid-cols-6 gap-3 text-slate-900">
+      {lakes.map((lake, i) => (
+        <div key={i} className="bg-white p-4 rounded-3xl border border-slate-100 shadow-sm text-center">
+          <Droplets size={16} className="text-blue-400 mx-auto mb-2" />
+          <h4 className="text-slate-800 font-black text-[9px] uppercase tracking-tight">{lake}</h4>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+export const DiscardedPlaces = () => {
+  const data = [
+    { n: 'Playa Catritre', r: 'Muy familiar.', t: 'San Martín' },
+    { n: 'Laguna Negra', r: 'Camping flojo.', t: 'Bariloche' }
+  ];
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-slate-900 text-left">
+      {data.map((p, i) => (
+        <div key={i} className="bg-slate-50 border border-slate-100 p-5 rounded-2xl flex justify-between items-center opacity-60">
+          <div><h4 className="text-xs font-bold text-slate-700 line-through">{p.n}</h4><p className="text-[10px] text-slate-400 italic leading-tight">{p.r}</p></div>
+          <MapPin size={14} className="text-slate-200" />
         </div>
       ))}
     </div>
