@@ -81,7 +81,7 @@ export const Itinerary = () => {
       });
       if (!res.ok) throw new Error('Error al guardar');
     } catch (e) {
-      alert('Error al guardar en la nube. Reintenta.');
+      const errData = await res.json(); alert(`Error: ${errData.message || errData.error || "Falla de red"}`);
     }
     setSaving(false);
   };
@@ -138,7 +138,7 @@ export const CrewNotes = () => {
       const res = await fetch('/api/db', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'notes', data: n }) });
       if (!res.ok) throw new Error();
     } catch (e) {
-      alert('Error al publicar. Reintenta.');
+      const errData = await res.json(); alert(`Error: ${errData.message || errData.error || "Falla de red"}`);
     }
   };
 
