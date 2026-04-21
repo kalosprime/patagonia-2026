@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { CheckCircle2, Circle, Ship, Package, AlertTriangle, Edit2, Check, Plus, Trash2, X, Droplets, MapPin, Star, Zap, Mountain, Beer, Tent, ExternalLink, ShoppingCart, Info, Briefcase } from 'lucide-react';
 
 // --- TYPES ---
@@ -12,11 +12,14 @@ const Skeleton = ({ h = "h-40" }) => <div className={`${h} w-full bg-slate-100 a
 // --- GLOBAL DB FETCH HELPER ---
 const syncDB = async (type: string, data: any) => {
   try {
-    await fetch('/api/db', {
+    const res = await fetch('/api/db', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ type, data })
+      body: JSON.stringify({ type, data }),
+      cache: 'no-store' // Evitamos cache
     });
+    const result = await res.json();
+    console.log(`Sync ${type}:`, result.success ? 'OK' : 'Error');
   } catch (e) {
     console.error("Error al sincronizar con la nube", e);
   }
@@ -36,14 +39,14 @@ export const Highlights = () => {
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
       {data.map((item, idx) => (
         <a key={idx} href={item.link} target="_blank" rel="noopener noreferrer" className={`${item.color} group p-6 rounded-[2.5rem] border border-white shadow-sm flex flex-col justify-between transition-all hover:shadow-xl hover:-translate-y-1 min-h-[150px]`}>
-          <div className="flex gap-4 text-slate-900">
+          <div className="flex gap-4">
             <div className="bg-white p-3 rounded-2xl shadow-sm h-fit">{item.icon}</div>
-            <div>
+            <div className="text-slate-900">
               <h4 className="font-black text-sm uppercase tracking-tight">{item.title}</h4>
               <p className="text-slate-500 text-[11px] leading-tight mt-1">{item.desc}</p>
             </div>
           </div>
-          <div className="mt-4 flex items-center gap-1.5 text-[9px] font-black text-slate-400 uppercase tracking-widest group-hover:text-glacier transition-colors">Google Maps <ExternalLink size={10} /></div>
+          <div className="mt-4 flex items-center gap-1.5 text-[9px] font-black text-slate-400 uppercase tracking-widest group-hover:text-glacier transition-colors text-slate-900">Google Maps <ExternalLink size={10} /></div>
         </a>
       ))}
     </div>
@@ -65,7 +68,7 @@ export const Itinerary = () => {
   const [editingId, setEditingId] = useState<number | string | null>(null);
 
   useEffect(() => {
-    fetch('/api/db').then(res => res.json()).then(data => {
+    fetch('/api/db', { cache: 'no-store' }).then(res => res.json()).then(data => {
       setItems(data.itinerary || initial);
       setMounted(true);
     });
@@ -78,6 +81,11 @@ export const Itinerary = () => {
 
   if (!mounted) return <Skeleton h="h-60" />;
 
+  const handleUpdate = (id: number | string, field: keyof ItineraryItem, value: string) => {
+    const updated = items.map(i => i.id === id ? { ...i, [field]: value } : i);
+    setItems(updated);
+  };
+
   return (
     <div className="space-y-4">
       {items.map((item) => (
@@ -86,9 +94,9 @@ export const Itinerary = () => {
             <div className="flex-1 text-slate-900">
               {editingId === item.id ? (
                 <div className="mt-2 space-y-2">
-                  <input className="w-full bg-slate-50 border border-slate-200 p-2 rounded-lg text-[10px] font-black uppercase" value={item.day} onChange={(e) => setItems(items.map(x => x.id === item.id ? {...x, day: e.target.value} : x))} placeholder="Fecha" />
-                  <input className="w-full bg-slate-50 border border-slate-200 p-2 rounded-lg text-sm font-bold" value={item.title} onChange={(e) => setItems(items.map(x => x.id === item.id ? {...x, title: e.target.value} : x))} placeholder="Título" />
-                  <textarea className="w-full bg-slate-50 border border-slate-200 p-2 rounded-lg text-slate-600 text-xs" value={item.desc} onChange={(e) => setItems(items.map(x => x.id === item.id ? {...x, desc: e.target.value} : x))} placeholder="Descripción" />
+                  <input className="w-full bg-slate-50 border border-slate-200 p-2 rounded-lg text-[10px] font-black uppercase" value={item.day} onChange={(e) => handleUpdate(item.id, 'day', e.target.value)} placeholder="Fecha" />
+                  <input className="w-full bg-slate-50 border border-slate-200 p-2 rounded-lg text-sm font-bold" value={item.title} onChange={(e) => handleUpdate(item.id, 'title', e.target.value)} placeholder="Título" />
+                  <textarea className="w-full bg-slate-50 border border-slate-200 p-2 rounded-lg text-slate-600 text-xs" value={item.desc} onChange={(e) => handleUpdate(item.id, 'desc', e.target.value)} placeholder="Descripción" />
                 </div>
               ) : (
                 <>
@@ -119,7 +127,7 @@ export const CrewNotes = () => {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    fetch('/api/db').then(res => res.json()).then(data => {
+    fetch('/api/db', { cache: 'no-store' }).then(res => res.json()).then(data => {
       setNotes(data.notes || []);
       setMounted(true);
     });
@@ -145,18 +153,18 @@ export const CrewNotes = () => {
   return (
     <div className="space-y-4 text-slate-900">
       <div className="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-100 space-y-4">
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2 text-slate-900">
           {(['aviso', 'llevar', 'comprar'] as const).map(cat => (
             <button key={cat} onClick={() => setCategory(cat)} className={`px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all border ${category === cat ? 'bg-slate-900 text-white border-slate-900' : 'bg-slate-50 text-slate-400 border-slate-100'}`}>
               {cat === 'llevar' ? '🎒 Llevar' : cat === 'comprar' ? '🛒 Comprar' : '💡 Aviso'}
             </button>
           ))}
         </div>
-        <div className="grid grid-cols-2 gap-3">
-          <input placeholder="Nombre" className="bg-slate-50 border border-slate-100 p-3 rounded-xl text-xs" value={name} onChange={e => setName(e.target.value)} />
+        <div className="grid grid-cols-2 gap-3 text-slate-900">
+          <input placeholder="Nombre" className="bg-slate-50 border border-slate-100 p-3 rounded-xl text-xs outline-none" value={name} onChange={e => setName(e.target.value)} />
           <button onClick={add} className="bg-slate-900 text-white px-4 py-2 rounded-xl font-bold text-xs">Publicar</button>
         </div>
-        <textarea placeholder="Mensaje..." className="w-full bg-slate-50 border border-slate-100 p-4 rounded-xl text-xs h-24" value={text} onChange={e => setText(e.target.value)} />
+        <textarea placeholder="Mensaje..." className="w-full bg-slate-50 border border-slate-100 p-4 rounded-xl text-xs h-24 outline-none text-slate-900" value={text} onChange={e => setText(e.target.value)} />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -190,7 +198,7 @@ export const GearChecklist = () => {
   const [newItem, setNewItem] = useState<{[key: number]: string}>({});
 
   useEffect(() => {
-    fetch('/api/db').then(res => res.json()).then(data => {
+    fetch('/api/db', { cache: 'no-store' }).then(res => res.json()).then(data => {
       setCategories(data.gear || initialGear);
       setChecked(data.checked || []);
       setMounted(true);
@@ -226,7 +234,7 @@ export const GearChecklist = () => {
           </div>
           <div className="flex gap-2">
             <input placeholder="..." className="flex-1 bg-slate-50 border p-2 rounded-xl text-[10px]" value={newItem[cat.id] || ''} onChange={e => setNewItem({...newItem, [cat.id]: e.target.value})} />
-            <button onClick={() => { if(newItem[cat.id]) save(categories.map(c => c.id === cat.id ? {...c, items: [...c.items, newItem[cat.id]]} : c), checked); setNewItem({...newItem, [cat.id]: ''}); }} className="bg-slate-100 p-2 rounded-xl hover:bg-slate-900 hover:text-white transition-all"><Plus size={14} /></button>
+            <button onClick={() => { if(newItem[cat.id]) save(categories.map(c => c.id === cat.id ? {...c, items: [...c.items, newItem[cat.id]]} : c), checked); setNewItem({...newItem, [cat.id]: ''}); }} className="bg-slate-100 p-2 rounded-xl hover:bg-slate-900 hover:text-white transition-all shadow-sm"><Plus size={14} /></button>
           </div>
         </div>
       ))}
@@ -234,7 +242,7 @@ export const GearChecklist = () => {
   );
 };
 
-// --- OTROS ---
+// ... (Resto de LakeList y DiscardedPlaces mantenidos)
 export const LakeList = () => {
   const lakes = [
     { name: 'Lago Falkner', link: 'https://www.google.com/maps/search/Lago+Falkner+Neuquen/' },
@@ -249,32 +257,27 @@ export const LakeList = () => {
       {lakes.map((lake, i) => (
         <a key={i} href={lake.link} target="_blank" rel="noopener noreferrer" className="bg-white p-4 rounded-3xl border border-slate-100 shadow-sm flex flex-col items-center text-center group hover:border-glacier transition-all">
           <Droplets size={16} className="text-blue-400 mb-2" />
-          <h4 className="text-slate-800 font-black text-[10px] uppercase tracking-tight leading-none mb-1">{lake.name}</h4>
+          <h4 className="text-slate-800 font-black text-[9px] uppercase tracking-tight leading-none">{lake.name}</h4>
         </a>
       ))}
     </div>
   );
 };
 
-export const DiscardedPlaces = () => {
-  const data = [
-    { n: 'Playa Catritre', r: 'Ambiente familiar. Playa Yuco tiene mejor onda.', t: 'San Martín', link: 'https://www.google.com/maps/search/La+Islita/' },
-    { n: 'Laguna Negra', r: 'Camping medio pelo. Preferimos Falkner o Hermoso.', t: 'Bariloche', link: 'https://www.google.com/maps/search/Villa+Tacul/' },
-    { n: 'Cascada Vullignanco', r: 'No parece la gran cosa comparado con Ñivinco.', t: 'Ruta 40', link: 'https://www.google.com/maps/search/Cascada+Ñivinco/' },
-    { n: 'El Bolsón / Cajón del Azul', r: 'Suma demasiadas horas de manejo.', t: 'Sur Profundo', link: 'https://www.google.com/maps/search/Casa+de+Piedra+Rio+Caleufu/' },
-  ];
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-slate-900">
-      {data.map((p, i) => (
-        <a key={i} href={p.link} target="_blank" rel="noopener noreferrer" className="bg-slate-50 border border-slate-100 p-5 rounded-2xl group flex justify-between items-center text-left">
-          <div>
-            <span className="text-[9px] font-bold text-slate-400 uppercase mb-1 block">{p.t}</span>
-            <h4 className="text-slate-700 font-bold text-sm line-through opacity-50">{p.n}</h4>
-            <p className="text-slate-500 text-[10px] italic leading-tight">"{p.r}"</p>
-          </div>
-          <MapPin size={14} className="text-slate-200 group-hover:text-slate-400 transition-colors" />
-        </a>
-      ))}
-    </div>
-  );
-};
+export const DiscardedPlaces = () => (
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-slate-900 text-left">
+    {[
+      { n: 'Playa Catritre', r: 'Ambiente familiar. Playa Yuco tiene mejor onda.', t: 'San Martín', link: 'https://www.google.com/maps/search/La+Islita/' },
+      { n: 'Laguna Negra', r: 'Camping medio pelo. Preferimos Falkner o Hermoso.', t: 'Bariloche', link: 'https://www.google.com/maps/search/Villa+Tacul/' }
+    ].map((p, i) => (
+      <a key={i} href={p.link} target="_blank" rel="noopener noreferrer" className="bg-slate-50 border border-slate-100 p-5 rounded-2xl group flex justify-between items-center text-left">
+        <div>
+          <span className="text-[9px] font-bold text-slate-400 uppercase mb-1 block">{p.t}</span>
+          <h4 className="text-slate-700 font-bold text-sm line-through opacity-50">{p.n}</h4>
+          <p className="text-slate-500 text-[10px] italic leading-tight">"{p.r}"</p>
+        </div>
+        <MapPin size={14} className="text-slate-200 group-hover:text-slate-400 transition-colors" />
+      </a>
+    ))}
+  </div>
+);

@@ -1,6 +1,8 @@
 import { kv } from '@vercel/kv';
 import { NextResponse } from 'next/server';
 
+export const dynamic = 'force-dynamic'; // Esto evita que Vercel guarde copias viejas de los datos
+
 export async function GET() {
   try {
     const itinerary = await kv.get('banda_itinerary');
@@ -18,7 +20,6 @@ export async function POST(request: Request) {
   try {
     const { type, data } = await request.json();
     
-    // Guardamos según el tipo de dato
     if (type === 'itinerary') await kv.set('banda_itinerary', data);
     if (type === 'notes') await kv.set('banda_notes', data);
     if (type === 'gear') await kv.set('banda_gear', data);
