@@ -9,11 +9,13 @@ const getSupabase = () => {
 };
 
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export async function GET() {
   try {
     const supabase = getSupabase();
     const { data, error } = await supabase.from('trip_data').select('*');
+    
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
     const result = (data || []).reduce((acc: any, item: any) => {
@@ -26,6 +28,11 @@ export async function GET() {
       notes: result.notes || [],
       gear: result.gear || [],
       checked: result.checked || []
+    }, {
+      headers: {
+        'Cache-Control': 'no-store, max-age=0, must-revalidate',
+        'Pragma': 'no-cache'
+      }
     });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
@@ -37,19 +44,17 @@ export async function POST(request: Request) {
     const supabase = getSupabase();
     const { type, data } = await request.json();
     
-    // UPSERT: Si existe la llave (itinerary, notes, etc) la actualiza, si no la crea.
+    if (!type || !data) return NextResponse.json({ error: 'Missing type or data' }, { status: 400 });
+
     const { error } = await supabase
       .from('trip_data')
       .upsert({ 
         key: type, 
         data: data, 
         updated_at: new Date().toISOString() 
-      });
+      }, { onConflict: 'key' });
 
-    if (error) {
-      console.error("Supabase Write Error:", error.message);
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     
     return NextResponse.json({ success: true });
   } catch (error: any) {
