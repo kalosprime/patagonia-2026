@@ -2,9 +2,20 @@ import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 
 const getSupabase = () => {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://wfhozfgdrztpanbgwjzc.supabase.co';
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!key) throw new Error('Falta la ANON_KEY en Vercel');
+  // Probamos todos los nombres posibles que Vercel suele poner
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || 
+              process.env.SUPABASE_URL || 
+              'https://wfhozfgdrztpanbgwjzc.supabase.co';
+              
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 
+              process.env.SUPABASE_ANON_KEY || 
+              process.env.SUPABASE_SERVICE_ROLE_KEY;
+  
+  if (!key) {
+    console.error("CRITICAL: Supabase Key missing in environment");
+    return null;
+  }
+  
   return createClient(url, key);
 };
 
@@ -14,8 +25,9 @@ export const revalidate = 0;
 export async function GET() {
   try {
     const supabase = getSupabase();
+    if (!supabase) return NextResponse.json({ error: 'Falta configurar las variables de Supabase en Vercel.' }, { status: 500 });
+
     const { data, error } = await supabase.from('trip_data').select('*');
-    
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
     const result = (data || []).reduce((acc: any, item: any) => {
@@ -42,8 +54,9 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const supabase = getSupabase();
+    if (!supabase) return NextResponse.json({ error: 'Falta configurar las variables de Supabase en Vercel.' }, { status: 500 });
+
     const { type, data } = await request.json();
-    
     if (!type || !data) return NextResponse.json({ error: 'Missing type or data' }, { status: 400 });
 
     const { error } = await supabase
