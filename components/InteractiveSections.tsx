@@ -70,8 +70,24 @@ export const Itinerary = () => {
             <span className="text-[9px] font-black text-slate-400 uppercase">{i.day}</span>
             {editingId === i.id ? (
               <div className="mt-2 space-y-2">
-                <input className="w-full bg-slate-50 border p-2 rounded text-sm" value={i.title} onChange={(e) => setItems(items.map(x => x.id === i.id ? {...x, title: e.target.value} : x))} onBlur={() => syncDB('itinerary', items)} />
-                <textarea className="w-full bg-slate-50 border p-2 rounded text-xs" value={i.desc} onChange={(e) => setItems(items.map(x => x.id === i.id ? {...x, desc: e.target.value} : x))} onBlur={() => syncDB('itinerary', items)} />
+                <input 
+                  className="w-full bg-slate-50 border p-2 rounded text-[10px] font-black uppercase" 
+                  value={i.day} 
+                  onChange={(e) => setItems(items.map(x => x.id === i.id ? {...x, day: e.target.value} : x))} 
+                  placeholder="Fecha (ej: 27/12)"
+                />
+                <input 
+                  className="w-full bg-slate-50 border p-2 rounded text-sm font-bold" 
+                  value={i.title} 
+                  onChange={(e) => setItems(items.map(x => x.id === i.id ? {...x, title: e.target.value} : x))} 
+                  placeholder="Título del lugar"
+                />
+                <textarea 
+                  className="w-full bg-slate-50 border p-2 rounded text-xs" 
+                  value={i.desc} 
+                  onChange={(e) => setItems(items.map(x => x.id === i.id ? {...x, desc: e.target.value} : x))} 
+                  placeholder="Descripción"
+                />
               </div>
             ) : (
               <><h4 className="font-bold text-sm mt-1">{i.title}</h4><p className="text-xs mt-1 text-slate-500">{i.desc}</p></>
