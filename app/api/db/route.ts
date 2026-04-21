@@ -6,11 +6,12 @@ export const revalidate = 0;
 
 export async function GET() {
   try {
-    const itinerary = await kv.get('banda_itinerary');
-    const notes = await kv.get('banda_notes');
-    const gear = await kv.get('banda_gear');
-    const checked = await kv.get('banda_checked');
-    
+    // Usamos un nombre de tabla único y limpio
+    const itinerary = await kv.get('trip_iti_v1');
+    const notes = await kv.get('trip_notes_v1');
+    const gear = await kv.get('trip_gear_v1');
+    const checked = await kv.get('trip_check_v1');
+
     return NextResponse.json({ 
       itinerary: itinerary || [], 
       notes: notes || [], 
@@ -19,24 +20,24 @@ export async function GET() {
     }, {
       headers: {
         'Cache-Control': 'no-store, max-age=0, must-revalidate',
+        'Pragma': 'no-cache'
       }
     });
   } catch (error) {
-    return NextResponse.json({ error: 'DB_READ_ERROR' }, { status: 500 });
+    return NextResponse.json({ error: 'READ_FAIL' }, { status: 500 });
   }
 }
 
 export async function POST(request: Request) {
   try {
     const { type, data } = await request.json();
-    
-    if (type === 'itinerary') await kv.set('banda_itinerary', data);
-    if (type === 'notes') await kv.set('banda_notes', data);
-    if (type === 'gear') await kv.set('banda_gear', data);
-    if (type === 'checked') await kv.set('banda_checked', data);
+    if (type === 'itinerary') await kv.set('trip_iti_v1', data);
+    if (type === 'notes') await kv.set('trip_notes_v1', data);
+    if (type === 'gear') await kv.set('trip_gear_v1', data);
+    if (type === 'checked') await kv.set('trip_check_v1', data);
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    return NextResponse.json({ error: 'DB_WRITE_ERROR' }, { status: 500 });
+    return NextResponse.json({ error: 'WRITE_FAIL' }, { status: 500 });
   }
 }
