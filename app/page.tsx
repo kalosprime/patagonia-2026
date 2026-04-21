@@ -82,7 +82,7 @@ export default function PatagoniaDashboard() {
           <GearChecklist />
         </section>
 
-        <footer className="text-center pt-10 border-t border-slate-200"><p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.3em]">© 2026 Patagonia Trip • Command Center</p></footer>
+        <footer className="text-center pt-10 border-t border-slate-200"><p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.3em]">☁️ Cloud Sync Activo • © 2026 Viaje al Sur</p></footer>
       </div>
     </main>
   );
