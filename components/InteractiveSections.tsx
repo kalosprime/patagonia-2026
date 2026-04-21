@@ -16,7 +16,7 @@ export const Highlights = () => {
     { title: 'Días de Sol', desc: 'Playa Yuco, La Islita y Playa Bonita.', icon: <Zap size={16} />, color: 'bg-blue-50', link: 'https://www.google.com/maps/search/Playa+Yuco/' },
     { title: 'Trekking & Cascadas', desc: 'Ñivinco, Santa Ana y Dora.', icon: <Mountain size={16} />, color: 'bg-emerald-50', link: 'https://www.google.com/maps/search/Cascada+Ñivinco/' },
     { title: 'Adrenalina', desc: 'Salto al agua en el Puente Ruca Malen.', icon: <Zap size={16} />, color: 'bg-orange-50', link: 'https://www.google.com/maps/search/Puente+Ruca+Malen/' },
-    { title: 'Cierre Épico', desc: 'Refugio Patagonia (Circuito Chico).', icon: <Beer size={16} />, color: 'bg-amber-50', link: 'https://www.google.com/maps/search/Villa+Tacul+Bariloche/' },
+    { title: 'Cierre Épico', desc: 'Refugio Patagonia (Circuito Chico).', icon: <Beer size={16} />, color: 'bg-amber-600', link: 'https://www.google.com/maps/search/Villa+Tacul+Bariloche/' },
     { title: 'Bases Relax', desc: 'Camping Pichi Traful y Espejo Chico.', icon: <Tent size={16} />, color: 'bg-indigo-50', link: 'https://www.google.com/maps/search/Lago+Espejo+Chico+Neuquen/' },
   ];
   return (
@@ -25,12 +25,12 @@ export const Highlights = () => {
         <a key={idx} href={item.link} target="_blank" rel="noopener noreferrer" className={`${item.color} group p-6 rounded-[2.5rem] border border-white shadow-sm flex flex-col justify-between transition-all hover:shadow-xl min-h-[150px]`}>
           <div className="flex gap-4">
             <div className="bg-white p-3 rounded-2xl shadow-sm h-fit text-slate-700">{item.icon}</div>
-            <div className="text-left">
-              <h4 className="font-black text-slate-800 text-sm uppercase tracking-tight">{item.title}</h4>
+            <div className="text-left text-slate-900">
+              <h4 className="font-black text-sm uppercase tracking-tight">{item.title}</h4>
               <p className="text-slate-500 text-[11px] leading-tight mt-1">{item.desc}</p>
             </div>
           </div>
-          <div className="mt-4 flex items-center gap-1.5 text-[9px] font-black text-slate-400 uppercase tracking-widest group-hover:text-glacier transition-colors text-slate-900">Google Maps <ExternalLink size={10} /></div>
+          <div className="mt-4 flex items-center gap-1.5 text-[9px] font-black text-slate-400 uppercase tracking-widest group-hover:text-glacier transition-colors text-slate-900">Mapa <ExternalLink size={10} /></div>
         </a>
       ))}
     </div>
@@ -49,8 +49,6 @@ export const Itinerary = () => {
     { id: 1, day: '27/12', title: 'Salida Rosario', desc: 'Noche en Rufino.', color: 'border-blue-500' },
     { id: 2, day: '28/12', title: 'Rumbo al Falkner', desc: '15 horas de manejo.', color: 'border-cyan-400' },
     { id: 3, day: '29/12 - 01/01', title: 'Base Falkner', desc: 'Año Nuevo.', color: 'border-emerald-500' },
-    { id: 4, day: '02/01 - 04/01', title: 'SMAndes & 7 Lagos', desc: 'Yuco, Quila Quina y Meliquina.', color: 'border-orange-400' },
-    { id: 5, day: '05/01 - 07/01', title: 'Manso & Bariloche', desc: 'La Pasarela, Ruca Malen y Cierre.', color: 'border-cyan-500' },
   ];
 
   useEffect(() => {
@@ -68,11 +66,19 @@ export const Itinerary = () => {
     if (!initialLoadDone.current) return;
     setSaving(true);
     setItems(newData);
-    await fetch('/api/db', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ type: 'itinerary', data: newData })
-    });
+    try {
+      const res = await fetch('/api/db', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'itinerary', data: newData })
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        alert(`Error Supabase: ${err.error || 'Falla en el servidor'}`);
+      }
+    } catch (e) {
+      alert('Error de red al guardar el itinerario.');
+    }
     setSaving(false);
   };
 
@@ -86,9 +92,9 @@ export const Itinerary = () => {
           <div className="flex-1 text-left text-slate-900">
             {editingId === i.id ? (
               <div className="space-y-2 pr-4 text-left">
-                <input className="w-full bg-slate-50 border p-2 rounded text-[10px] font-black uppercase text-slate-800" value={i.day} onChange={(e) => setItems(items.map(x => x.id === i.id ? {...x, day: e.target.value} : x))} />
-                <input className="w-full bg-slate-50 border p-2 rounded text-sm font-bold text-slate-800" value={i.title} onChange={(e) => setItems(items.map(x => x.id === i.id ? {...x, title: e.target.value} : x))} />
-                <textarea className="w-full bg-slate-50 border p-2 rounded text-xs text-slate-600" value={i.desc} onChange={(e) => setItems(items.map(x => x.id === i.id ? {...x, desc: e.target.value} : x))} />
+                <input className="w-full bg-slate-50 border p-2 rounded text-[10px] font-black uppercase" value={i.day} onChange={(e) => setItems(items.map(x => x.id === i.id ? {...x, day: e.target.value} : x))} />
+                <input className="w-full bg-slate-50 border p-2 rounded text-sm font-bold" value={i.title} onChange={(e) => setItems(items.map(x => x.id === i.id ? {...x, title: e.target.value} : x))} />
+                <textarea className="w-full bg-slate-50 border p-2 rounded text-xs" value={i.desc} onChange={(e) => setItems(items.map(x => x.id === i.id ? {...x, desc: e.target.value} : x))} />
               </div>
             ) : (
               <><span className="text-[9px] font-black text-slate-300 uppercase">{i.day}</span><h4 className="text-slate-800 font-bold text-sm mt-1">{i.title}</h4><p className="text-slate-500 text-xs mt-1 leading-relaxed">{i.desc}</p></>
@@ -128,10 +134,10 @@ export const CrewNotes = () => {
       const res = await fetch('/api/db', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'notes', data: n }) });
       if (!res.ok) {
         const err = await res.json();
-        alert(`Error: ${err.message || 'No se pudo publicar'}`);
+        alert(`Error Supabase: ${err.error || 'No se pudo publicar'}`);
       }
     } catch (e) {
-      alert('Error de conexión.');
+      alert('Error de conexión con la base de datos.');
     }
   };
 
@@ -140,8 +146,8 @@ export const CrewNotes = () => {
   return (
     <div className="space-y-4">
       <div className="bg-white p-6 rounded-[2.5rem] shadow-sm space-y-3 text-slate-900">
-        <input placeholder="Nombre" className="w-full bg-slate-50 border-none p-3 rounded-xl text-xs text-slate-800" value={name} onChange={e => setName(e.target.value)} />
-        <textarea placeholder="Anotar algo importante..." className="w-full bg-slate-50 border-none p-3 rounded-xl text-xs h-20 text-slate-800" value={text} onChange={e => setText(e.target.value)} />
+        <input placeholder="Nombre" className="w-full bg-slate-50 border-none p-3 rounded-xl text-xs text-slate-800 outline-none" value={name} onChange={e => setName(e.target.value)} />
+        <textarea placeholder="Anotar algo importante..." className="w-full bg-slate-50 border-none p-3 rounded-xl text-xs h-20 text-slate-800 outline-none" value={text} onChange={e => setText(e.target.value)} />
         <button onClick={() => { if(name && text) { const n: NoteItem[] = [{id:Date.now(), name, text, category:'aviso' as const, date:new Date().toLocaleDateString()}, ...notes]; save(n); setText(''); } }} className="w-full bg-slate-900 text-white py-3 rounded-xl font-bold text-xs uppercase tracking-widest">Publicar</button>
       </div>
       {notes.map(n => (
@@ -182,12 +188,14 @@ export const GearChecklist = () => {
     if (!initialLoadDone.current) return;
     setCat(nc); setChecked(nch);
     try {
-      await Promise.all([
-        fetch('/api/db', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'gear', data: nc }) }),
-        fetch('/api/db', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'checked', data: nch }) })
-      ]);
+      const res = await fetch('/api/db', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'gear', data: nc }) });
+      await fetch('/api/db', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'checked', data: nch }) });
+      if (!res.ok) {
+        const err = await res.json();
+        alert(`Error Supabase: ${err.error || 'Error de sincronización'}`);
+      }
     } catch (e) {
-      alert('Error de sincronización.');
+      alert('Error de red al guardar equipamiento.');
     }
   };
 
@@ -201,17 +209,17 @@ export const GearChecklist = () => {
           <div className="space-y-2 flex-1">
             {c.items.map((item) => (
               <div key={item} className="flex items-center justify-between group">
-                <button onClick={() => save(cat, checked.includes(item) ? checked.filter((i: string) => i !== item) : [...checked, item])} className="flex items-center gap-3 flex-1 text-left">
+                <button onClick={() => save(cat, checked.includes(item) ? checked.filter(x => x !== item) : [...checked, item])} className="flex items-center gap-3 flex-1 text-left">
                   {checked.includes(item) ? <CheckCircle2 size={16} className="text-emerald-500" /> : <Circle size={16} className="text-slate-200" />}
                   <span className={`text-[11px] font-medium ${checked.includes(item) ? 'text-slate-300 line-through' : 'text-slate-700'}`}>{item}</span>
                 </button>
-                <button onClick={() => save(cat.map((x: GearCategory) => x.id === c.id ? {...x, items: x.items.filter((y: string) => y !== item)} : x), checked)} className="text-slate-200 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all px-1"><X size={12} /></button>
+                <button onClick={() => save(cat.map(x => x.id === c.id ? {...x, items: x.items.filter(i => i !== item)} : x), checked)} className="text-slate-200 hover:text-red-400 opacity-0 group-hover:opacity-100 px-1"><X size={12} /></button>
               </div>
             ))}
           </div>
           <div className="flex gap-2 pt-4 mt-4 border-t border-slate-50">
-            <input placeholder="Nuevo..." className="flex-1 bg-slate-50 border-none p-2 rounded-xl text-[10px] outline-none" value={newItem[c.id] || ''} onChange={e => setNewItem({...newItem, [c.id]: e.target.value})} onKeyDown={e => { if(e.key==='Enter' && newItem[c.id]) { const n = cat.map((x: GearCategory) => x.id === c.id ? {...x, items: [...x.items, newItem[c.id]]} : x); save(n, checked); setNewItem({...newItem, [c.id]: ''}); } }} />
-            <button onClick={() => { if(newItem[c.id]) { const n = cat.map((x: GearCategory) => x.id === c.id ? {...x, items: [...x.items, newItem[c.id]]} : x); save(n, checked); setNewItem({...newItem, [c.id]: ''}); } }} className="bg-slate-100 p-2 rounded-xl text-slate-400 hover:bg-slate-900 hover:text-white transition-all shadow-sm"><Plus size={14} /></button>
+            <input placeholder="Nuevo..." className="flex-1 bg-slate-50 border-none p-2 rounded-xl text-[10px] outline-none" value={newItem[c.id] || ''} onChange={e => setNewItem({...newItem, [c.id]: e.target.value})} onKeyDown={e => { if(e.key==='Enter' && newItem[c.id]) { const n = cat.map(x => x.id === c.id ? {...x, items: [...x.items, newItem[c.id]]} : x); save(n, checked); setNewItem({...newItem, [c.id]: ''}); } }} />
+            <button onClick={() => { if(newItem[c.id]) { const n = cat.map(x => x.id === c.id ? {...x, items: [...x.items, newItem[c.id]]} : x); save(n, checked); setNewItem({...newItem, [c.id]: ''}); } }} className="bg-slate-100 p-2 rounded-xl text-slate-400 hover:bg-slate-900 hover:text-white transition-all shadow-sm"><Plus size={14} /></button>
           </div>
         </div>
       ))}
@@ -220,35 +228,27 @@ export const GearChecklist = () => {
 };
 
 // --- OTROS ---
-export const LakeList = () => {
-  const lakes = ['Falkner', 'Lácar', 'Hermoso', 'Traful', 'Correntoso', 'Espejo'];
-  return (
-    <div className="grid grid-cols-2 sm:grid-cols-6 gap-3 text-slate-900">
-      {lakes.map((lake, i) => (
-        <div key={i} className="bg-white p-4 rounded-3xl border border-slate-100 shadow-sm text-center">
-          <Droplets size={16} className="text-blue-400 mx-auto mb-2" />
-          <h4 className="text-slate-800 font-black text-[9px] uppercase tracking-tight">{lake}</h4>
-        </div>
-      ))}
-    </div>
-  );
-};
+export const LakeList = () => (
+  <div className="grid grid-cols-2 sm:grid-cols-6 gap-3 text-slate-900">
+    {['Falkner', 'Lácar', 'Hermoso', 'Traful', 'Correntoso', 'Espejo'].map(l => (
+      <div key={l} className="bg-white p-3 rounded-2xl border border-slate-100 text-center shadow-sm">
+        <Droplets size={16} className="text-blue-400 mx-auto mb-2" />
+        <h4 className="text-slate-800 font-black text-[9px] uppercase tracking-tight">{l}</h4>
+      </div>
+    ))}
+  </div>
+);
 
-export const DiscardedPlaces = () => {
-  const data = [
-    { n: 'Playa Catritre', r: 'Ambiente familiar. Playa Yuco es mejor.', t: 'San Martín', link: 'https://www.google.com/maps/search/La+Islita/' },
-    { n: 'Laguna Negra', r: 'Camping medio pelo.', t: 'Bariloche', link: 'https://www.google.com/maps/search/Villa+Tacul/' },
-    { n: 'Cascada Vullignanco', r: 'No destaca tanto.', t: 'Ruta 40', link: 'https://www.google.com/maps/search/Cascada+Ñivinco/' },
-    { n: 'El Bolsón', r: 'Suma demasiado manejo.', t: 'Sur' }
-  ];
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-slate-900 text-left">
-      {data.map((p, i) => (
-        <a key={i} href={p.link} target="_blank" rel="noopener noreferrer" className="bg-slate-50 border border-slate-100 p-5 rounded-2xl group flex justify-between items-center text-left opacity-60">
-          <div><h4 className="text-xs font-bold text-slate-700 line-through">{p.n}</h4><p className="text-[10px] text-slate-400 italic leading-tight">"{p.r}"</p></div>
-          <MapPin size={14} className="text-slate-200 group-hover:text-slate-400 transition-colors" />
-        </a>
-      ))}
-    </div>
-  );
-};
+export const DiscardedPlaces = () => (
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-slate-900 text-left opacity-60">
+    {[
+      { n: 'Playa Catritre', r: 'Ambiente familiar. Playa Yuco es mejor.', t: 'San Martín', link: 'https://www.google.com/maps/search/La+Islita/' },
+      { n: 'Laguna Negra', r: 'Camping medio pelo.', t: 'Bariloche', link: 'https://www.google.com/maps/search/Villa+Tacul/' }
+    ].map((p, i) => (
+      <a key={i} href={p.link} target="_blank" rel="noopener noreferrer" className="bg-slate-50 border border-slate-100 p-5 rounded-2xl group flex justify-between items-center text-left">
+        <div><h4 className="text-xs font-bold text-slate-700 line-through">{p.n}</h4><p className="text-[10px] text-slate-400 italic leading-tight">"{p.r}"</p></div>
+        <MapPin size={14} className="text-slate-200 group-hover:text-slate-400 transition-colors" />
+      </a>
+    ))}
+  </div>
+);
