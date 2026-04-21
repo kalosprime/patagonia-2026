@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
-import { CheckCircle2, Circle, Ship, Package, AlertTriangle, Edit2, Check, Plus, Trash2, X, Droplets, MapPin, Star, Zap, Mountain, Beer, Tent, ExternalLink, RefreshCw } from 'lucide-react';
+import { CheckCircle2, Circle, Ship, Package, AlertTriangle, Edit2, Check, Plus, Trash2, X, MapPin, Star, Zap, Mountain, Beer, Tent, ExternalLink, RefreshCw, Droplets } from 'lucide-react';
 
 // --- TYPES ---
 interface ItineraryItem { id: number | string; day: string; title: string; desc: string; color: string; }
@@ -12,11 +12,11 @@ const Skeleton = ({ h = "h-40" }) => <div className={`${h} w-full bg-slate-100 a
 // --- THE IMPERDIBLES ---
 export const Highlights = () => {
   const data = [
-    { title: 'Hito Año Nuevo', desc: 'Festejo épico en Lago Falkner.', icon: <Star className="text-yellow-500" />, color: 'bg-yellow-50', link: 'https://www.google.com/maps/search/Lago+Falkner+Neuquen/' },
+    { title: 'Hito Año Nuevo', desc: 'Festejo épico en Lago Falkner.', icon: <Star size={16} />, color: 'bg-yellow-50', link: 'https://www.google.com/maps/search/Lago+Falkner+Neuquen/' },
     { title: 'Días de Sol', desc: 'Playa Yuco, La Islita y Playa Bonita.', icon: <Droplets size={16} />, color: 'bg-blue-50', link: 'https://www.google.com/maps/search/Playa+Yuco/' },
     { title: 'Trekking & Cascadas', desc: 'Ñivinco, Santa Ana y Dora.', icon: <Mountain size={16} />, color: 'bg-emerald-50', link: 'https://www.google.com/maps/search/Cascada+Ñivinco/' },
     { title: 'Adrenalina', desc: 'Salto al agua en el Puente Ruca Malen.', icon: <Zap size={16} />, color: 'bg-orange-50', link: 'https://www.google.com/maps/search/Puente+Ruca+Malen/' },
-    { title: 'Cierre Épico', desc: 'Refugio Patagonia (Circuito Chico).', icon: <Beer size={16} />, color: 'bg-amber-50', link: 'https://www.google.com/maps/search/Villa+Tacul+Bariloche/' },
+    { title: 'Cierre Épico', desc: 'Refugio Patagonia (Circuito Chico).', icon: <Beer size={16} />, color: 'bg-amber-600', link: 'https://www.google.com/maps/search/Villa+Tacul+Bariloche/' },
     { title: 'Bases Relax', desc: 'Camping Pichi Traful y Espejo Chico.', icon: <Tent size={16} />, color: 'bg-indigo-50', link: 'https://www.google.com/maps/search/Lago+Espejo+Chico+Neuquen/' },
   ];
   return (
@@ -55,18 +55,11 @@ export const Itinerary = () => {
     fetch(`/api/db?t=${Date.now()}`, { cache: 'no-store' })
       .then(res => res.json())
       .then(data => {
-        if (data.error === 'KV_NOT_CONNECTED') {
-          alert('¡Base de datos no conectada! Verifica Vercel Storage.');
-        }
         setItems(data.itinerary && data.itinerary.length > 0 ? data.itinerary : initial);
         setLoading(false);
         initialLoadDone.current = true;
       })
-      .catch(err => {
-        console.error(err);
-        setItems(initial);
-        setLoading(false);
-      });
+      .catch(() => setLoading(false));
   }, []);
 
   const save = async (newData: ItineraryItem[]) => {
@@ -79,9 +72,12 @@ export const Itinerary = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ type: 'itinerary', data: newData })
       });
-      if (!res.ok) throw new Error('Error al guardar');
+      if (!res.ok) {
+        const err = await res.json();
+        alert(`Error: ${err.message || 'Falla en el servidor'}`);
+      }
     } catch (e) {
-      const errData = await res.json(); alert(`Error: ${errData.message || errData.error || "Falla de red"}`);
+      alert('Error de red al guardar.');
     }
     setSaving(false);
   };
@@ -92,16 +88,16 @@ export const Itinerary = () => {
     <div className="space-y-4">
       {saving && <div className="fixed top-4 right-4 bg-slate-900 text-white px-4 py-2 rounded-full text-[10px] font-black z-50 flex items-center gap-2 shadow-2xl"><RefreshCw size={10} className="animate-spin" /> SINCRONIZANDO...</div>}
       {items.map((i) => (
-        <div key={i.id} className={`p-6 bg-white border-l-4 ${i.color || 'border-slate-100'} rounded-r-[2rem] shadow-sm flex justify-between items-start`}>
+        <div key={i.id} className={`p-6 bg-white border-l-4 border-slate-100 rounded-r-[2rem] shadow-sm flex justify-between items-start`}>
           <div className="flex-1 text-left text-slate-900">
             {editingId === i.id ? (
               <div className="space-y-2 pr-4 text-left">
-                <input className="w-full bg-slate-50 border p-2 rounded text-[10px] font-black uppercase" value={i.day} onChange={(e) => setItems(items.map(x => x.id === i.id ? {...x, day: e.target.value} : x))} />
-                <input className="w-full bg-slate-50 border p-2 rounded text-sm font-bold" value={i.title} onChange={(e) => setItems(items.map(x => x.id === i.id ? {...x, title: e.target.value} : x))} />
-                <textarea className="w-full bg-slate-50 border p-2 rounded text-xs" value={i.desc} onChange={(e) => setItems(items.map(x => x.id === i.id ? {...x, desc: e.target.value} : x))} />
+                <input className="w-full bg-slate-50 border p-2 rounded text-[10px] font-black uppercase text-slate-800" value={i.day} onChange={(e) => setItems(items.map(x => x.id === i.id ? {...x, day: e.target.value} : x))} />
+                <input className="w-full bg-slate-50 border p-2 rounded text-sm font-bold text-slate-800" value={i.title} onChange={(e) => setItems(items.map(x => x.id === i.id ? {...x, title: e.target.value} : x))} />
+                <textarea className="w-full bg-slate-50 border p-2 rounded text-xs text-slate-600" value={i.desc} onChange={(e) => setItems(items.map(x => x.id === i.id ? {...x, desc: e.target.value} : x))} />
               </div>
             ) : (
-              <><span className="text-[9px] font-black text-slate-300 uppercase">{i.day}</span><h4 className="font-bold text-sm mt-1">{i.title}</h4><p className="text-slate-500 text-xs mt-1 leading-relaxed">{i.desc}</p></>
+              <><span className="text-[9px] font-black text-slate-300 uppercase">{i.day}</span><h4 className="text-slate-800 font-bold text-sm mt-1">{i.title}</h4><p className="text-slate-500 text-xs mt-1 leading-relaxed">{i.desc}</p></>
             )}
           </div>
           <div className="flex gap-1">
@@ -136,9 +132,12 @@ export const CrewNotes = () => {
     setNotes(n);
     try {
       const res = await fetch('/api/db', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'notes', data: n }) });
-      if (!res.ok) throw new Error();
+      if (!res.ok) {
+        const err = await res.json();
+        alert(`Error: ${err.message || 'No se pudo publicar'}`);
+      }
     } catch (e) {
-      const errData = await res.json(); alert(`Error: ${errData.message || errData.error || "Falla de red"}`);
+      alert('Error de conexión.');
     }
   };
 
@@ -217,7 +216,7 @@ export const GearChecklist = () => {
             ))}
           </div>
           <div className="flex gap-2 pt-4 mt-4 border-t border-slate-50">
-            <input placeholder="Nuevo..." className="flex-1 bg-slate-50 border-none p-2 rounded-xl text-[10px]" value={newItem[c.id] || ''} onChange={e => setNewItem({...newItem, [c.id]: e.target.value})} onKeyDown={e => { if(e.key==='Enter' && newItem[c.id]) { const n = cat.map(x => x.id === c.id ? {...x, items: [...x.items, newItem[c.id]]} : x); save(n, checked); setNewItem({...newItem, [c.id]: ''}); } }} />
+            <input placeholder="Nuevo..." className="flex-1 bg-slate-50 border-none p-2 rounded-xl text-[10px] outline-none" value={newItem[c.id] || ''} onChange={e => setNewItem({...newItem, [c.id]: e.target.value})} onKeyDown={e => { if(e.key==='Enter' && newItem[c.id]) { const n = cat.map(x => x.id === c.id ? {...x, items: [...x.items, newItem[c.id]]} : x); save(n, checked); setNewItem({...newItem, [c.id]: ''}); } }} />
             <button onClick={() => { if(newItem[c.id]) { const n = cat.map(x => x.id === c.id ? {...x, items: [...x.items, newItem[c.id]]} : x); save(n, checked); setNewItem({...newItem, [c.id]: ''}); } }} className="bg-slate-100 p-2 rounded-xl text-slate-400"><Plus size={14} /></button>
           </div>
         </div>
